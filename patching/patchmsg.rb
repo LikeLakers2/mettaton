@@ -1,5 +1,5 @@
 module Discordrb
-	class Message
+  class Message
     def initialize(data, bot)
       @bot = bot
       @content = data['content']
@@ -21,9 +21,9 @@ module Discordrb
                     Recipient.new(bot.user(data['author']['id'].to_i), @channel, bot)
                   else
                     member = @channel.server.member(data['author']['id'].to_i)
-										####NEW####
-										member = @bot.user(data['author']['id'].to_i) unless member
-										####END####
+                    ####NEW####
+                    member = @bot.user(data['author']['id'].to_i) unless member
+                    ####END####
                     Discordrb::LOGGER.warn("Member with ID #{data['author']['id']} not cached even though it should be.") unless member
                     member
                   end
@@ -59,5 +59,5 @@ module Discordrb
       @embeds = []
       @embeds = data['embeds'].map { |e| Embed.new(e, self) } if data['embeds']
     end
-	end
+  end
 end
