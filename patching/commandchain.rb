@@ -3,7 +3,7 @@ module Discordrb::Commands
 		def execute_bare(event)
 			result = ''
 			quoted = false
-			hacky_delim, hacky_space, hacky_prev = [0xe001, 0xe002, 0xe003].pack('U*').chars
+			hacky_delim, hacky_space, hacky_prev, hacky_newline = [0xe001, 0xe002, 0xe003, 0xe004].pack('U*').chars
 			
 			escaped = false
 
@@ -32,6 +32,11 @@ module Discordrb::Commands
 				
 				if char == ' ' && quoted
 					result += hacky_space
+					next
+				end
+				
+				if char == "\n" && quoted
+					result += hacky_newline
 					next
 				end
 				
@@ -73,9 +78,10 @@ module Discordrb::Commands
 
 				arguments = arguments.split ' '
 
-				# Replace the hacky spaces with actual spaces
+				# Replace the hacky spaces/newlines with actual ones
 				arguments.map! do |elem|
 					elem.gsub hacky_space, ' '
+					elem.gsub hacky_newline, "\n"
 				end
 
 				# Finally execute the command
