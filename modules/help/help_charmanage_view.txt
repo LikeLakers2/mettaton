@@ -1,0 +1,9 @@
+```rp!charmanage view```
+**Usage**:
+rp!charmanage view `<character name/ID>`
+
+**Parameters**:
+The name or ID of the character to view.
+
+**Description**:
+View the character info set by that character's owner.

@@ -1,0 +1,11 @@
+```rp!charmanage set```
+**Usage**:
+rp!charmanage set `<character name/ID>` `<field>` `[text]`
+
+**Parameters**:
+`1.` The character name/ID to edit. Must be your own unless you are admin.
+`2.` The field to edit. This is case-insensitive if the field already exists, otherwise the field name is added exactly as you specify it.
+`3.` The text to add to the field. If this is not specified, this acts as a way of deleting fields.
+
+**Description**:
+Allows you to edit your character's info. If you do not specify any text to add to the field, this will delete the field specified.

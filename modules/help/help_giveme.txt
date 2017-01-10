@@ -1,0 +1,9 @@
+```rp!giveme```
+**Usage**:
+rp!giveme
+
+**Parameters**:
+None
+
+**Description**:
+Gives you the RP-Applicant role. From there you'll need to register a character -- made easy through the use of the `rp!register` command!

@@ -1,0 +1,65 @@
+{
+  "botconfig": {
+    "moduledir": "./modules/",
+    "datadir": "./data/",
+    "tempdir": "./temp/",
+    "ownerid": 98296942768967680
+  },
+  "libconfig": {
+    "name": "Michis_RP_Bot",
+    "prefix": [
+      "rp!",
+      "mtt!",
+      "mettaton!",
+      ":mttyeah:",
+      "<:mttyeah:231265979890401280>",
+      ":mttoh:",
+      "<:mttoh:231265980225945600>"
+    ],
+    "fancy_log": false,
+    "ignore_bots": true,
+    "webhook_commands": false
+  },
+  "modconfig": {
+    "charappmanager": {
+      "servcfg": {
+        "256789342687592448": {
+          "logchannel": 256789495104536577,
+          "prepend": ""
+        },
+        "120330239996854274": {
+          "logchannel": 250300820665532417,
+          "prepend": "<@&250300268841926657>\n"
+        }
+      }
+    },
+    "rolegiver": {
+      "commands": [
+        {
+          "cmdname": "rp-applicant",
+          "giverole": 251776958650777600,
+          "takeroles": [
+            250917798845349888,
+            251795395863117834
+          ]
+        },
+        {
+          "cmdname": "rp",
+          "giverole": 250917798845349888,
+          "takeroles": [
+            251776958650777600,
+            251795395863117834
+          ]
+        },
+        {
+          "cmdname": "npc",
+          "giverole": 251795395863117834,
+          "takeroles": [
+            251776958650777600,
+            250917798845349888
+          ]
+        }
+      ]
+    }
+  }
+}

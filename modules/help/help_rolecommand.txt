@@ -1,0 +1,9 @@
+```rp!<rolecommand>```
+**Usage**:
+rp!<rolecommand> `<@user1>` `[@user2 @user3 ...]`
+
+**Parameters**:
+The users to give the role to. Must be mentions.
+
+**Description**:
+Gives a user a role.

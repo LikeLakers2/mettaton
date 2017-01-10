@@ -1,0 +1,9 @@
+```rp!register```
+**Usage**:
+rp!register
+
+**Parameters**:
+None
+
+**Description**:
+Starts the registration process for a new character. You will have the opportunity to submit a character using a web link or text -- otherwise, you may use this function to create a character using an interactive field editing mode. The instructions on what to do will be given to you by the bot, as needed.

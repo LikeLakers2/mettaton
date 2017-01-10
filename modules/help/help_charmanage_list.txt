@@ -1,0 +1,9 @@
+```rp!charmanage list```
+**Usage**:
+rp!charmanage list `[page number]`
+
+**Parameters**:
+A page number. You may also specify "all" to get a text file with the full list.
+
+**Description**:
+Lists characters for that server, sorted by ID.
