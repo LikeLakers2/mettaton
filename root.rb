@@ -21,9 +21,24 @@ def eval_cmd(event, *code)
 		#puts e
 		
 		#event << "An error occured :disappointed:"
-		event << "```"
-		event << e.gsub(/`/, "'")
-		event << "```"
+		exc_msg = []
+		exc_msg << "```"
+		exc_msg << e.gsub(/`/, "'")
+		exc_msg << "```"
+		
+		exc_msg = exc_msg.join("\n")
+		if exc_msg.length >= 2000
+			#We should send it as a file
+			filename = File.join($config["tempdir"], "exception.log")
+			
+			File.write(filename, exc_msg, {:mode => 'w'})
+			
+			f = File.open(filename, "r")
+			msg_info = "Exception occured. (>2000 characters)"
+			event.send_file(f, caption: msg_info)
+		else
+			event << exc_msg
+		end
 	end
 end
 
