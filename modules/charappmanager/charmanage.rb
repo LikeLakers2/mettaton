@@ -10,6 +10,8 @@ module CharAppManager
 		elsif action.nil?
 			event << "You didn't specify what you want to do."
 			event << "Available actions: `#{list_cm_actions.join('`, `')}`"
+			event << "You may also specify a character name in place of an action as an alias to view it."
+			event << "Please note that it must be the full valid name for a character name to work."
 		else
 			act = "cm_#{action.downcase}".to_sym
 			if self.respond_to?(act)
