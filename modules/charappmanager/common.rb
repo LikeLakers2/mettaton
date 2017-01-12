@@ -48,7 +48,7 @@ module CharAppManager
 		
 		chardir = File.join($config["datadir"], "charappmanager", "characters")
 		Dir.entries(chardir).each {|servdir|
-			next if servdir == '.' or servdir == '..'
+			next if servdir == '.' or servdir == '..' or servdir == 'empty.txt'
 			servid = servdir.to_i
 			servdir = File.join(chardir, servdir)
 			puts "CharAppManager: Loading characters for server ID #{servid}"
