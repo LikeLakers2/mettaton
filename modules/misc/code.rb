@@ -51,6 +51,7 @@ module MiscMod
 			}
 			
 			event << "You rolled a `#{dice}d#{sides}` and got `#{results.join('`, `')}`."
+			
 			if dice >= 10
 				event << "I also counted the number of times each number appears:"
 				counter = []
@@ -60,6 +61,12 @@ module MiscMod
 				}
 				event << counter.join(',  ')
 			end
+			
+			total = 0
+			results.each {|i|
+				total += i
+			}
+			event << "Total of all dice: #{total}"
 		end
 	end
 end
