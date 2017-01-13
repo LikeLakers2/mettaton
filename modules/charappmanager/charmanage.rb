@@ -78,7 +78,7 @@ module CharAppManager
 				filename = File.join($config["tempdir"], "#{servid}_char_#{charid}.txt")
 				msg_to_dump = "#{p_j}\n#{f_j}"
 				
-				File.write(filename, msg_to_dump, {:mode => 'a'})
+				File.write(filename, msg_to_dump, {:mode => 'w'})
 				
 				f = File.open(filename, "r")
 				msg_info = "The result was too long, so I've dumped it to a file."
@@ -207,7 +207,7 @@ module CharAppManager
 			filename = File.join($config["tempdir"], "#{servid}_#{userid}_#{time}.txt")
 			filename.gsub!(/:/, "-")
 			
-			File.write(filename, ftext, {:mode => 'a'})
+			File.write(filename, ftext, {:mode => 'w'})
 			
 			f = File.open(filename, "r")
 			
