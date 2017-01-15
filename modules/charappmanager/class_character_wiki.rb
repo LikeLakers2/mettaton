@@ -1,0 +1,3 @@
+class CharacterDB < Wiki
+	
+end
