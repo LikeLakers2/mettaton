@@ -1,4 +1,15 @@
 class CharacterDB < Wiki
+	# Search function
+	# @param field [String] The field name to search
+	# @param op [Symbol] A symbol specifying what method to use to search
+	# @param text [Object] Text to search with.
+	def search_op(field, op, text)
+		@pages.select {|page|
+			next if page.nil?
+			page[field].send(op, text)
+		}
+	end
+	
 	# Returns a new CharacterDB, trimmed down to the search results.
 	def search
 		@pages.select {|page|
