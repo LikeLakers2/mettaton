@@ -24,4 +24,31 @@ class CharacterDB < Wiki
 			page[field] =~ text
 		end
 	end
+	
+	
+	def search_not
+		s = search do |p|
+					yield page
+				end
+				
+		@pages.reject {|page| s.include? page}
+	end
+	
+	def search_not_equals(field, text)
+		search_not do |page|
+			page[field] == text
+		end
+	end
+	
+	def search_not_contains(field, text)
+		search_not do |page|
+			page[field].include? text
+		end
+	end
+	
+	def search_not_regex(field, text)
+		search_not do |page|
+			page[field] =~ text
+		end
+	end
 end
