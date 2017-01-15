@@ -23,7 +23,7 @@ class Wiki
 	
 	# Removes a page from the wiki.
 	# @param page [Integer, PageWithProperties] The index of the page to remove. Can also be a Symbol to search for.
-	def remove_card!(page)
+	def remove_page!(page)
 		if page.is_a? Integer
 			@pages.delete_at page
 		else
