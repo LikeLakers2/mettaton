@@ -3,10 +3,11 @@ class CharacterDB < Wiki
 	# @param field [String] The field name to search
 	# @param op [Symbol] A symbol specifying what method to use to search
 	# @param text [Object] Text to search with.
-	def search_op(field, op, text)
+	def search_op(field, op, text, invert = false)
 		@pages.select {|page|
 			next if page.nil?
-			page[field].send(op, text)
+			page[field].send(op, text) unless invert
+			!(page[field].send(op, text)) if invert
 		}
 	end
 	
@@ -19,21 +20,15 @@ class CharacterDB < Wiki
 	end
 	
 	def search_equals(field, text)
-		search do |page|
-			page[field] == text
-		end
+		search_op(field, :==, text)
 	end
 	
 	def search_contains(field, text)
-		search do |page|
-			page[field].include? text
-		end
+		search_op(field, :include?, text)
 	end
 	
 	def search_regex(field, text)
-		search do |page|
-			page[field] =~ text
-		end
+		search_op(field, :=~, text)
 	end
 	
 	
@@ -46,20 +41,14 @@ class CharacterDB < Wiki
 	end
 	
 	def search_not_equals(field, text)
-		search_not do |page|
-			page[field] == text
-		end
+		search_op(field, :==, text, true)
 	end
 	
 	def search_not_contains(field, text)
-		search_not do |page|
-			page[field].include? text
-		end
+		search_op(field, :include?, text, true)
 	end
 	
 	def search_not_regex(field, text)
-		search_not do |page|
-			page[field] =~ text
-		end
+		search_op(field, :=~, text, true)
 	end
 end
