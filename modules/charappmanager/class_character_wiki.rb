@@ -11,27 +11,24 @@ class CharacterDB < Wiki
 		}
 	end
 	
-	def search_equals(field, text)
-		search(field, :==, text)
+		search(field, :==, text, invert)
 	end
 	
-	def search_contains(field, text)
-		search(field, :include?, text)
+		search(field, :include?, text, invert)
 	end
 	
-	def search_regex(field, text)
-		search(field, :=~, text)
+		search(field, :=~, text, invert)
 	end
 	
-	def search_not_equals(field, text)
-		search(field, :==, text, true)
-	end
+	#def search_not_equals(field, text)
+	#	search(field, :==, text, true)
+	#end
 	
-	def search_not_contains(field, text)
-		search(field, :include?, text, true)
-	end
+	#def search_not_contains(field, text)
+	#	search(field, :include?, text, true)
+	#end
 	
-	def search_not_regex(field, text)
-		search(field, :=~, text, true)
-	end
+	#def search_not_regex(field, text)
+	#	search(field, :=~, text, true)
+	#end
 end
