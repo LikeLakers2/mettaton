@@ -11,12 +11,15 @@ class CharacterDB < Wiki
 		}
 	end
 	
+	def search_equals(field, text, invert = false)
 		search(field, :==, text, invert)
 	end
 	
+	def search_contains(field, text, invert = false)
 		search(field, :include?, text, invert)
 	end
 	
+	def search_regex(field, text, invert = false)
 		search(field, :=~, text, invert)
 	end
 	
