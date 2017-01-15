@@ -288,7 +288,7 @@ module CharAppManager
 			filename = File.join($config["tempdir"], "#{servid}_#{userid}_#{time}.txt")
 			filename.gsub!(/:/, "-")
 			
-			File.write(filename, msg, {:mode => 'a'})
+			File.write(filename, msg, {:mode => 'w'})
 			
 			f = File.open(filename, "r")
 			
