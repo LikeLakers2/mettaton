@@ -1,6 +1,4 @@
 # Files specific to Mettaton
-creds.json
-ignored_users.txt
 
 temp/*
 
@@ -9,3 +7,7 @@ data/archivalunit/fulllogs/*
 
 data/charappmanager/characters/*
 data/charappmanager/textapps/*
+
+creds.json
+
+ignored_users.txt
