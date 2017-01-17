@@ -36,16 +36,21 @@ class Character < PageWithProperties
 	# @param line [String] How a single field line should be output
 	# @param propline [String] How a single property line should be output
 	# @param
-	def view
+	
+	# Create output for a character
+	# @param properties [true, false] Whether or not to include the properties
+	# @param fields [true, false] Whether or not to include the fields
+	# @return [String] The output.
+	def view(properties = true, fields = true)
 		result = []
 		
-		@properties.each {|k,v|
+		(@properties.each {|k,v|
 			result << view_field("[Property] #{k}", v)
-		}
+		}) if properties
 		
-		@fields.each {|k,v|
+		(@fields.each {|k,v|
 			result << view_field(k, v)
-		}
+		}) if fields
 		
 		result.join("\n")
 	end
