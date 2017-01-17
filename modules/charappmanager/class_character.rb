@@ -29,33 +29,21 @@ class Character < PageWithProperties
 	#     \/   |_____|______|   \/  \/    
 	#
 	
-	# Outputs the character based on a template
-	# {name} will be replaced with the field name
-	# {text} will be replaced with the text
-	# @param 
-	# @param line [String] How a single field line should be output
-	# @param propline [String] How a single property line should be output
-	# @param
-	
-	# Create output for a character
-	# @param properties [true, false] Whether or not to include the properties
-	# @param fields [true, false] Whether or not to include the fields
-	# @return [String] The output.
-	def view(properties = true, fields = true)
-		result = []
-		
-		(@properties.each {|k,v|
-			result << view_field("[Property] #{k}", v)
-		}) if properties
-		
-		(@fields.each {|k,v|
-			result << view_field(k, v)
-		}) if fields
-		
-		result.join("\n")
+	def view(&block)
+		(view_props {|k,v| yield k,v}) + "\n" (view_fields {|k,v| yield k,v})
 	end
 	
-	def view_field(name, text)
-		"`#{name}`: #{text}"
+	# Create output for a character, from @properties only
+	# @param &block [Proc] A proc that processes a key-value pair
+	# @return [String] All the results from the proc, joined by a single newline
+	def view_props(&block)
+		@properties.map {|k,v| yield k, v }.join("\n")
+	end
+	
+	# Create output for a character, from @fields only
+	# @param &block [Proc] A proc that processes a key-value pair
+	# @return [String] All the results from the proc, joined by a single newline
+	def view_fields(&block)
+		@fields.map {|k,v| yield k, v }.join("\n")
 	end
 end
