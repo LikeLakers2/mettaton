@@ -51,7 +51,7 @@ class Wiki
 	# @param field [String] The field name to search
 	# @param op [Symbol] A symbol specifying what method to use to search
 	# @param text [Object] Text to search with.
-	# @return [Array<Character>] The results that match your search.
+	# @return [Array<PageWithProperties>] The results that match your search.
 	def search(field, op, text, invert = false)
 		@pages.select {|page|
 			next if page.nil?

@@ -5,5 +5,9 @@ class CharacterDB < Wiki
 	# | |      | |  \___ \   | |   
 	# | |____ _| |_ ____) |  | |   
 	# |______|_____|_____/   |_|   
+	#
 	
+	def list
+		
+	end
 end

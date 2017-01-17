@@ -3,13 +3,17 @@ class Character < PageWithProperties
 		@properties["ownerid"] == userid
 	end
 	
+	def name
+		["name"] || "Unnamed Character" #Will change this to a proper attribute later
+	end
+	
 	def id
-		get_key("charid") #Will change this to a proper attribute later
+		["charid"] #Will change this to a proper attribute later
 	end
 	alias_method :charid, :id
 	
 	def ownerid
-		get_key("ownerid") #Will change this to a proper attribute later
+		["ownerid"] #Will change this to a proper attribute later
 	end
 	
 	def load_from_json(file)
@@ -23,15 +27,30 @@ class Character < PageWithProperties
 	#   \ \/ /   | | |  __|   \ \/  \/ /  
 	#    \  /   _| |_| |____   \  /\  /   
 	#     \/   |_____|______|   \/  \/    
+	#
 	
-	# Outputs the text based on a template
+	# Outputs the character based on a template
 	# {name} will be replaced with the field name
 	# {text} will be replaced with the text
 	# @param 
 	# @param line [String] How a single field line should be output
 	# @param propline [String] How a single property line should be output
 	# @param
-	def view()
+	def view
+		result = []
 		
+		@properties.each {|k,v|
+			result << view_field("[Property] #{k}", v)
+		}
+		
+		@fields.each {|k,v|
+			result << view_field(k, v)
+		}
+		
+		result.join("\n")
+	end
+	
+	def view_field(name, text)
+		"`#{name}`: #{text}"
 	end
 end
