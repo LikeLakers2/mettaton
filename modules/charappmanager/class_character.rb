@@ -29,8 +29,11 @@ class Character < PageWithProperties
 	#     \/   |_____|______|   \/  \/    
 	#
 	
+	# Calls #view_props and #view_fields with the proc, and returns them joined by a newline
+	# @param &block [Proc] A proc that processes a key-value pair
+	# @return [String] All the results from the proc, joined by a single newline
 	def view(&block)
-		(view_props {|k,v| yield k,v}) + "\n" (view_fields {|k,v| yield k,v})
+		(view_props {|k,v| yield k,v}) + "\n" + (view_fields {|k,v| yield k,v})
 	end
 	
 	# Create output for a character, from @properties only
