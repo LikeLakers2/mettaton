@@ -12,12 +12,9 @@ class CharacterDB < Wiki
 	# @return [Array<String>] The output as an array.
 	def list(&block)
 		output = []
-		#@pages.each.each_with_index {|c,i|
-		#	
-		#}
 		@pages.each {|page|
 			next if page.nil?
-			output << page
+			output << yield page
 		}
 		output
 	end
