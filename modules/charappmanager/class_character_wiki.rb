@@ -7,7 +7,18 @@ class CharacterDB < Wiki
 	# |______|_____|_____/   |_|   
 	#
 	
-	def list
-		
+	# Creates an array of strings, passing each character to &block and returning it in the output.
+	# @param &block [Proc] A proc that will take a Character class object and return a string.
+	# @return [Array<String>] The output as an array.
+	def list(&block)
+		output = []
+		#@pages.each.each_with_index {|c,i|
+		#	
+		#}
+		@pages.each {|page|
+			next if page.nil?
+			output << page
+		}
+		output
 	end
 end

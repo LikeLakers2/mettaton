@@ -49,4 +49,8 @@ class Character < PageWithProperties
 	def view_fields(&block)
 		@fields.map {|k,v| yield k, v }.join("\n")
 	end
+	
+	def view_short(&block)
+		yield self
+	end
 end
