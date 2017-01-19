@@ -30,6 +30,12 @@ module CharAppManager
 		nil
 	end
 	
+	#    view => Character#view
+	#     set => Character.fields[name]     #TODO
+	# setprop => Character.properties[name] #TODO
+	#    list => CharacterDB#list
+	#  search => Wiki#search
+	#  delete => Wiki[n] = nil              #TODO
 	command([:view, :set, :setprop, :list, :search, :delete]) do |event, *params|
 		event.bot.execute_command(:charmanage, event, [event.command.name, *params])
 	end
