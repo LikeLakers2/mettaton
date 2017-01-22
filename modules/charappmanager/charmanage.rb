@@ -31,8 +31,8 @@ module CharAppManager
 	end
 	
 	#    view => Character#view
-	#     set => Character.fields[name]     #TODO
-	# setprop => Character.properties[name] #TODO
+	#     set => PageWithProperties#field_set!
+	# setprop => PageWithProperties#prop_set!
 	#    list => CharacterDB#list
 	#  search => Wiki#search
 	#  delete => Wiki[n] = nil              #TODO
