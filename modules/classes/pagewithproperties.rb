@@ -46,8 +46,18 @@ class PageWithProperties
 		@properties.select {|k,v| k.downcase == name.downcase }.keys.first
 	end
 	
+	def prop_set!(name, value)
+		name = prop_get(name) || name
+		@properties[name] = value
+	end
+	
 	def field_get(name)
 		@fields.select {|k,v| k.downcase == name.downcase }.keys.first
+	end
+	
+	def field_set!(name, value)
+		name = field_get(name) || name
+		@fields[name] = value
 	end
 	
 	def key?(key)
