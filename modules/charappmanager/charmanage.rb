@@ -75,12 +75,16 @@ module CharAppManager
 		if pl+fl+1 > cl   #If, combined with a line break, it would be over the character limit
 			if pl > cl or fl > cl   #If either would be over the character limit
 				#We should send it as a file
-				filename = File.join($config["tempdir"], "#{servid}_char_#{charid}.txt")
-				msg_to_dump = "#{p_j}\n#{f_j}"
+				sv_fn = chardir = File.join($config["datadir"], "charappmanager", "characters", servid, "char_#{charid}.json")
+				temp_fn = File.join($config["tempdir"], "#{servid}_char_#{charid}.txt")
 				
-				File.write(filename, msg_to_dump, {:mode => 'w'})
+				if test('>', sv_fn, temp_fn)
+					msg_to_dump = "#{p_j}\n#{f_j}"
+					
+					File.write(temp_fn, msg_to_dump, {:mode => 'w'})
+				end
 				
-				f = File.open(filename, "r")
+				f = File.open(temp_fn, "r")
 				msg_info = "The result was too long, so I've dumped it to a file."
 				event.send_file(f, caption: msg_info)
 			else
