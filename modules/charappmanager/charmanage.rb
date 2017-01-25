@@ -75,7 +75,7 @@ module CharAppManager
 		if pl+fl+1 > cl   #If, combined with a line break, it would be over the character limit
 			if pl > cl or fl > cl   #If either would be over the character limit
 				#We should send it as a file
-				sv_fn = chardir = File.join($config["datadir"], "charappmanager", "characters", servid, "char_#{charid}.json")
+				sv_fn = chardir = File.join($config["datadir"], "charappmanager", "characters", servid.to_s, "char_#{charid}.json")
 				temp_fn = File.join($config["tempdir"], "#{servid}_char_#{charid}.txt")
 				
 				if test('>', sv_fn, temp_fn)
