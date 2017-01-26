@@ -1,21 +1,4 @@
 module ArchivalUnit
-	def self.json_files_to_log(file_ary)
-		log_ary = []
-		file_ary.each {|f|
-			log_ary += JSON.parse(File.read(f), symbolize_names: true)
-		}
-		
-		log_ary.sort! {|a,b|
-			a[:id] <=> b[:id]
-		}
-		
-		fn = "./temp/output.log"
-		log_ary.map! {|m| yield m }
-		File.write(fn, log_ary.join("\n"))
-		fn
-	end
-	
-	
 	def self.ary_to_hash(msg_ary)
 		msg_ary.map {|m| msg_to_hash(m)}
 	end
@@ -27,12 +10,28 @@ module ArchivalUnit
 			:content => msg_obj.content,
 			:attach => msg_obj.attachments.map {|attach| attach.url}.join(' ')
 		}
-		#"#{msgid}#{prepend}#{ts} || #{user} || #{msg}"
 	end
 	
 	def self.id_to_time(id)
 		ms = (id >> 22) + Discordrb::DISCORD_EPOCH
 		Time.at(ms / 1000.0)
+	end
+	
+	def self.json_files_to_log(event, file_ary)
+		log_ary = []
+		file_ary.each {|f|
+			log_ary += JSON.parse(File.read(f), symbolize_names: true)
+		}
+		
+		log_ary.sort! {|a,b|
+			a[:id] <=> b[:id]
+		}
+		
+		log_ary.map! {|m| yield m }
+		
+		fn = save_log(event, log_ary)
+		
+		fn
 	end
 	
 	

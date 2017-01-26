@@ -43,7 +43,8 @@ module ArchivalUnit
 			end
 		}
 		
-		t.each_pair {|n,t| p t.value}
+		#t.each_pair {|n,t| p t.value}
+		t.each_value {|t| t.join}
 	end
 	
 	def self.get_history(count, got_count, channel, before_id)

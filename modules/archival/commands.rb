@@ -65,7 +65,7 @@ module ArchivalUnit
 	
 	def self.archive_disk(event, msgcount, withids)
 		file_num = 0
-		ary_filenames = []
+		json_filenames = []
 		now_ts = (Time.now.utc - (60*60*5)).to_s << "-5"
 		
 		archive_yield(event, msgcount) {|m_ary|
@@ -75,12 +75,12 @@ module ArchivalUnit
 			fn.gsub!(/:/, "-")
 			
 			File.write(fn, m_json)
-			ary_filenames << fn
+			json_filenames << fn
 			
 			file_num += 1
 		}
 		
-		log = json_files_to_log(ary_filenames) {|m|
+		log = json_files_to_log(event, json_filenames) {|m|
 			id = withids ? "#{m[:id]} " : ""
 			ts = id_to_time(m[:id]).strftime "%Y-%m-%d %H:%M"
 			udist = begin
@@ -90,6 +90,8 @@ module ArchivalUnit
 							end
 			"#{id}#{ts} || #{udist} || #{m[:content]} #{m[:attach]}"
 		}
+		
+		File.delete(*json_filenames)
 		
 		log
 	end
