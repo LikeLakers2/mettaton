@@ -71,7 +71,7 @@ module ArchivalUnit
 		
 		f.write(fparam[:introtext])
 		f.write(archive_array.join("\n"))
-		f.write("\n") # Closing newline so that 
+		f.write("\n")
 
 		f.close
 		
@@ -84,12 +84,11 @@ module ArchivalUnit
 		
 		got_name = false
 		append_num = 1
-		filename_result = "#{filename}-#{append_num}#{ext}"
 		
-		until got_name do
+		until got_name
+			filename_result = "#{filename}-#{append_num}#{ext}"
 			if File.file? filename_result
 				append_num += 1
-				filename_result = "#{filename}-#{append_num}#{ext}"
 			else
 				got_name = true
 			end

@@ -14,8 +14,7 @@ module ArchivalUnit
 		event.channel.start_typing
 		
 		msgcount = msgcount.to_i
-		withids = false
-		withids = true if withids
+		withids = withids ? true : false
 		
 		
 		filen = if msgcount <= 2000
