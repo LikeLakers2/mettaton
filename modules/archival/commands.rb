@@ -31,17 +31,29 @@ module ArchivalUnit
 	end
 	
 	
-	def self.archive_memory(event, msgcount, all_confirm = nil)
-		withids = false
-		
+	def self.archive_memory(event, msgcount)
 		if msgcount < 0
 			event.respond "I can't archive the future."
 			return
 		end
 		
-		history = grab_history(event, msgcount)  # [[250,201],[200,101],[100,1]] - Message objects
-		history_text = history_to_text(history, withids)  # [250, 201, 200, 101, 100, 1] - String objects
-		file = save_log(event, history_text) # File name - String object
+		withids = false
+		archive_text = []
+		archive_yield(event, msgcount) {|m_ary|
+			m_ary.each {|m|
+				archive_text << {:id => m.id, :msg => msg_to_string(m)}
+			}
+		}
+		
+		archive_text.sort! {|a,b|
+			a[:id] <=> b[:id]
+		}
+		
+		archive_text.map! {|m|
+			m[:msg]
+		}
+		
+		file = save_log(event, archive_text) # File name - String object
 		
 		file
 	end
@@ -51,8 +63,8 @@ module ArchivalUnit
 		ary_filenames = []
 		now_ts = (Time.now.utc - (60*60*5)).to_s << "-5"
 		
-		archive_json(event, msgcount) {|m_ary|
-			m_json = JSON.generate(ary_to_json(m_ary))
+		archive_yield(event, msgcount) {|m_ary|
+			m_json = JSON.generate(ary_to_hash(m_ary))
 			
 			fn = filename_check(File.join($config["tempdir"], "fa_#{now_ts}_#{file_num}"), ".json")
 			fn.gsub!(/:/, "-")
@@ -81,11 +93,11 @@ module ArchivalUnit
 	
 	
 	
-	def self.archive_json(event, count)
+	def self.archive_yield(event, count)
 		return if count <= 0
 		event.channel.start_typing
 		
-		q_grab_to_json = Queue.new
+		q_grab_to_history = Queue.new
 		
 		t = {}
 		t[:grab_history] = Thread.new {
@@ -93,10 +105,10 @@ module ArchivalUnit
 			got_count = 0
 			while true
 				history = get_history(count, got_count, event.channel, before_id)
-				q_grab_to_json << history
+				q_grab_to_history << history
 				if history.length < 100
 					#We've reached the beginning of the channel, celebrate
-					q_grab_to_json.close
+					q_grab_to_history.close
 					break
 				end
 				before_id = history.last.id
@@ -104,11 +116,10 @@ module ArchivalUnit
 				#sleep 0.5
 				sleep 1
 			end
-			q_grab_to_json.close
 		}
 		
-		t[:history_output] = Thread.new {
-			while m_ary = q_grab_to_json.pop
+		t[:history_yield] = Thread.new {
+			while m_ary = q_grab_to_history.pop
 				yield m_ary
 			end
 		}
@@ -134,11 +145,11 @@ module ArchivalUnit
 	end
 	
 	
-	def self.ary_to_json(msg_ary)
-		msg_ary.map {|m| msg_to_json(m)}
+	def self.ary_to_hash(msg_ary)
+		msg_ary.map {|m| msg_to_hash(m)}
 	end
 	
-	def self.msg_to_json(msg_obj)
+	def self.msg_to_hash(msg_obj)
 		{
 			:id => msg_obj.id,
 			:uid => msg_obj.author.id,
