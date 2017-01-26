@@ -23,7 +23,12 @@ module ArchivalUnit
 		filen = if msgcount <= 2000
 							archive_memory(event, msgcount, withids)
 						else
-							archive_disk(event, msgcount, withids)
+							if check_admin(event)
+								archive_disk(event, msgcount, withids)
+							else
+								event.respond "You shouldn't need to archive over 2000 messages.\nOn the off-chance that you do, contact a mod or admin!"
+								break
+							end
 						end
 		
 		#1024*1024*8 == 8388608
