@@ -74,5 +74,6 @@ def check_admin(event)
 end
 
 $bot.ready() do |event|
+	$bot.gateway.check_heartbeat_acks = true
 	event.bot.game = "Oh Yes Simulator"
 end
