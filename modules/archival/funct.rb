@@ -44,9 +44,7 @@ module ArchivalUnit
 		
 		log_ary.map! {|m| yield m }
 		
-		fn = save_log(event, log_ary)
-		
-		fn
+		save_log(event, log_ary)
 	end
 	
 	

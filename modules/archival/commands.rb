@@ -90,7 +90,7 @@ module ArchivalUnit
 				
 				file_num += 1
 				num_yields = 0
-				m_json_ary = []
+				m_json_ary.clear
 			end
 		}
 		
