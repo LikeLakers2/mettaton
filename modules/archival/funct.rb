@@ -80,16 +80,16 @@ module ArchivalUnit
 	
 	
 	def self.filename_check(filename, ext)
-		return filename+ext unless File.file? filename+ext
+		return "#{filename}#{ext}" unless File.file? "#{filename}#{ext}"
 		
 		got_name = false
 		append_num = 1
-		filename_result = filename+"-"+append_num.to_s+ext
+		filename_result = "#{filename}-#{append_num}#{ext}"
 		
 		until got_name do
 			if File.file? filename_result
 				append_num += 1
-				filename_result = filename+"-"+append_num.to_s+ext
+				filename_result = "#{filename}-#{append_num}#{ext}"
 			else
 				got_name = true
 			end
