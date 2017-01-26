@@ -1,57 +1,40 @@
 module ArchivalUnit
-	# Grabs all the messages we need and returns them in an array
-	# Return format: [[100,1],[200,101],[250,201]]
-	# 250 is earliest message, 1 is latest
-	def self.grab_history(event, count)
-		return [] if count <= 0
-		
-		history = []
-		#Discord only replies with 100 messages at max for each history request
-		fullgrabs = (count/100).floor
-		extragrab = count % 100
-		
-		before_id = nil
-		fullgrabs.times{|i|
-			history << event.channel.history(100, before_id)
-			
-			if history.last.empty? or history.last.length < 100 #or before_id == history.last.last.id
-				#Short-circuit if we notice that we aren't getting any more messages.
-				extragrab = 0
-				break
-			else
-				#Discord outputs latest messages first in the array
-				before_id = history.last.last.id
-				#So we don't spam the servers
-				sleep 0.1
-			end
+	def self.json_files_to_log(file_ary)
+		log_ary = []
+		file_ary.each {|f|
+			log_ary += JSON.parse(File.read(f), symbolize_names: true)
 		}
 		
-		history << event.channel.history(extragrab, before_id) unless extragrab == 0
+		log_ary.sort! {|a,b|
+			a[:id] <=> b[:id]
+		}
 		
-		# [[100,1],[200,101],[250,201]].reverse
-		# History array will be in a weird format so we need to reverse it
-		#history.reverse!
-		
-		return history
+		fn = "./temp/output.log"
+		log_ary.map! {|m| yield m }
+		File.write(fn, log_ary.join("\n"))
+		fn
 	end
 	
-	# Changes the entire array from Message objects to String objects
-	# Return format: [250, 201, 200, 101, 100, 1]
-	# 250 is earliest message, 1 is latest
-	def self.history_to_text(history, withids = false)
-		text_ary = []
-		
-		history.each {|block|
-			#[250,201]
-			block.each {|msg|
-				text_ary << msg_to_string(msg, "", withids)
-			}
-		}
-		# [1, 100, 101, 200, 201, 250]
-		text_ary.reverse!
-		# [250, 201, 200, 101, 100, 1]
-		return text_ary
+	
+	def self.ary_to_hash(msg_ary)
+		msg_ary.map {|m| msg_to_hash(m)}
 	end
+	
+	def self.msg_to_hash(msg_obj)
+		{
+			:id => msg_obj.id,
+			:uid => msg_obj.author.id,
+			:content => msg_obj.content,
+			:attach => msg_obj.attachments.map {|attach| attach.url}.join(' ')
+		}
+		#"#{msgid}#{prepend}#{ts} || #{user} || #{msg}"
+	end
+	
+	def self.id_to_time(id)
+		ms = (id >> 22) + Discordrb::DISCORD_EPOCH
+		Time.at(ms / 1000.0)
+	end
+	
 	
 	# Takes the array of text and saves it to a log file, with some prepended text
 	# Return format: "FILENAME OF FILE.log"

@@ -11,11 +11,14 @@ module ArchivalUnit
 		end
 		break unless event.user.id == $config["ownerid"]
 		
-		event.channel.start_typing
-		
 		msgcount = msgcount.to_i
+		if msgcount <= 0
+			event.respond "Please enter a valid amount of messages to archive!"
+			break
+		end
 		withids = withids ? true : false
 		
+		event.channel.start_typing
 		
 		filen = if msgcount <= 2000
 							archive_memory(event, msgcount, withids)
@@ -91,97 +94,6 @@ module ArchivalUnit
 		log
 	end
 	
-	
-	
-	
-	
-	
-	def self.archive_yield(event, count)
-		return if count <= 0
-		event.channel.start_typing
-		
-		q_grab_to_history = Queue.new
-		
-		t = {}
-		t[:grab_history] = Thread.new {
-			before_id = nil
-			got_count = 0
-			while true
-				history = get_history(count, got_count, event.channel, before_id)
-				q_grab_to_history << history
-				if history.length < 100
-					#We've reached the beginning of the channel, celebrate
-					q_grab_to_history.close
-					break
-				end
-				before_id = history.last.id
-				got_count += history.length
-				#sleep 0.5
-				sleep 1
-			end
-		}
-		
-		t[:history_yield] = Thread.new {
-			while m_ary = q_grab_to_history.pop
-				yield m_ary
-			end
-		}
-		
-		t.each_pair {|n,t| p t.value}
-		
-	end
-	
-	def self.json_files_to_log(file_ary)
-		log_ary = []
-		file_ary.each {|f|
-			log_ary += JSON.parse(File.read(f), symbolize_names: true)
-		}
-		
-		log_ary.sort! {|a,b|
-			a[:id] <=> b[:id]
-		}
-		
-		fn = "./temp/output.log"
-		log_ary.map! {|m| yield m }
-		File.write(fn, log_ary.join("\n"))
-		fn
-	end
-	
-	
-	def self.ary_to_hash(msg_ary)
-		msg_ary.map {|m| msg_to_hash(m)}
-	end
-	
-	def self.msg_to_hash(msg_obj)
-		{
-			:id => msg_obj.id,
-			:uid => msg_obj.author.id,
-			:content => msg_obj.content,
-			:attach => msg_obj.attachments.map {|attach| attach.url}.join(' ')
-		}
-		#"#{msgid}#{prepend}#{ts} || #{user} || #{msg}"
-	end
-	
-	def self.id_to_time(id)
-		ms = (id >> 22) + Discordrb::DISCORD_EPOCH
-		Time.at(ms / 1000.0)
-	end
-	
-	def self.get_history(count, got_count, channel, before_id)
-		to_get = count - got_count
-		if to_get < 100
-			case to_get
-			when 0 # Get nothing
-				[]
-			when 1 # Get 1
-				[channel.history(2, before_id).first]
-			else # Get less than 100 but more than 1
-				channel.history(to_get, before_id)
-			end
-		else # Get 100
-			channel.history(100, before_id)
-		end
-	end
 	
 	
 	#####################
