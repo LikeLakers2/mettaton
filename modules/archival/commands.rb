@@ -4,84 +4,169 @@ module ArchivalUnit
 	#####################
 	###ARCHIVE#COMMAND###
 	#####################
-	command(:archive) do |event, msgcount = 250, all_confirm = nil|
+	command(:archive) do |event, msgcount = "250"|
 		break unless check_event(event)
 		if !(check_admin(event))
 			break if event.channel.id == 120330239996854274  #Newhome, check for admin
-			break if msgcount.to_i >= 2500
 		end
-		
-		all_messages = false
-		withids = false
-		
-		if msgcount.to_s.downcase == "all"
-			if check_admin(event)
-				if all_confirm == "confirm"
-					all_messages = true
-				elsif all_confirm == "withids"
-					all_messages = true
-					withids = true
-				else
-					event << "All messages? That might take a while."
-					event << "Use `rp!archive all confirm` (case-sensitive) to make sure you wanna do this."
-					event << "You can also use `rp!archive all withids` to have me archive the message IDs too."
-					break
-				end
-			else
-				event << "You don't have permission to do that."
-				break
-			end
-		else
-			msgcount = msgcount.to_i
-			if msgcount == 0
-				#Upload empty file in response
-				break
-			elsif msgcount < 0
-				event.respond "I can't archive the future."
-				break
-			end
-		end
+		break unless event.user.id == $config["ownerid"]
 		
 		event.channel.start_typing
 		
-		if all_messages
-			history = grab_history_all(event)
-		else
-			history = grab_history(event, msgcount)  # [[250,201],[200,101],[100,1]] - Message objects
-		end
-		history_text = history_to_text(history, withids)  # [250, 201, 200, 101, 100, 1] - String objects
-		file = save_log(event, history_text) # File name - String object
+		msgcount = msgcount.to_i
+		filen = if msgcount <= 2000
+							archive_memory(event, msgcount)
+						else
+							archive_disk(event, msgcount)
+						end
 		
 		#1024*1024*8 == 8388608
 		#Round down to 8000000 for safety
-		if File.size(file) >= 8000000
+		if File.size(filen) >= 8000000
 			event << "Archive is 8MB or larger. Please ask the owner/maintainer of this bot, <@#{$config["ownerid"]}>, for the log."
 			event << "This notice might disappear soon, if the owner ever gets off their lazy butt and implements Dropbox support."
 		else
-			event.channel.send_file(File.open(file, "r"), caption: "Here's your archive.")
+			event.channel.send_file(File.open(filen, "r"), caption: "Here's your archive.")
 		end
 	end
 	
 	
+	def self.archive_memory(event, msgcount, all_confirm = nil)
+		withids = false
+		
+		if msgcount < 0
+			event.respond "I can't archive the future."
+			return
+		end
+		
+		history = grab_history(event, msgcount)  # [[250,201],[200,101],[100,1]] - Message objects
+		history_text = history_to_text(history, withids)  # [250, 201, 200, 101, 100, 1] - String objects
+		file = save_log(event, history_text) # File name - String object
+		
+		file
+	end
 	
-	def self.grab_history_all(event)
-		history = []
-		before_id = nil
-		while true
-			#Discord only replies with 100 messages at max for each history request
-			history << event.channel.history(100, before_id)
+	def self.archive_disk(event, msgcount)
+		file_num = 0
+		ary_filenames = []
+		now_ts = (Time.now.utc - (60*60*5)).to_s << "-5"
+		
+		archive_json(event, msgcount) {|m_ary|
+			m_json = JSON.generate(ary_to_json(m_ary))
 			
-			if history.last.empty? or history.last.length < 100 #or before_id == history.last.last.id
-				#Short-circuit if we notice that we aren't getting any more messages.
-				break
-			else
-				#Discord outputs latest messages first in the array
-				before_id = history.last.last.id
-				#So we don't spam the servers
+			fn = filename_check(File.join($config["tempdir"], "fa_#{now_ts}_#{file_num}"), ".json")
+			fn.gsub!(/:/, "-")
+			
+			File.write(fn, m_json)
+			ary_filenames << fn
+			
+			file_num += 1
+		}
+		
+		log = json_files_to_log(ary_filenames) {|m|
+			ts = id_to_time(m[:id]).strftime "%Y-%m-%d %H:%M"
+			udist = begin
+								event.bot.user(m[:uid]).distinct
+							rescue
+								"UserID #{m[:uid]}"
+							end
+			"#{m[:id]} #{ts} || #{udist} || #{m[:content]} #{m[:attach]}"
+		}
+		
+		log
+	end
+	
+	
+	
+	
+	
+	
+	def self.archive_json(event, count)
+		return if count <= 0
+		event.channel.start_typing
+		
+		q_grab_to_json = Queue.new
+		
+		t = {}
+		t[:grab_history] = Thread.new {
+			before_id = nil
+			got_count = 0
+			while true
+				history = get_history(count, got_count, event.channel, before_id)
+				q_grab_to_json << history
+				if history.length < 100
+					#We've reached the beginning of the channel, celebrate
+					q_grab_to_json.close
+					break
+				end
+				before_id = history.last.id
+				got_count += history.length
+				#sleep 0.5
 				sleep 1
 			end
+			q_grab_to_json.close
+		}
+		
+		t[:history_output] = Thread.new {
+			while m_ary = q_grab_to_json.pop
+				yield m_ary
+			end
+		}
+		
+		t.each_pair {|n,t| p t.value}
+		
+	end
+	
+	def self.json_files_to_log(file_ary)
+		log_ary = []
+		file_ary.each {|f|
+			log_ary += JSON.parse(File.read(f), symbolize_names: true)
+		}
+		
+		log_ary.sort! {|a,b|
+			a[:id] <=> b[:id]
+		}
+		
+		fn = "./temp/output.log"
+		log_ary.map! {|m| yield m }
+		File.write(fn, log_ary.join("\n"))
+		fn
+	end
+	
+	
+	def self.ary_to_json(msg_ary)
+		msg_ary.map {|m| msg_to_json(m)}
+	end
+	
+	def self.msg_to_json(msg_obj)
+		{
+			:id => msg_obj.id,
+			:uid => msg_obj.author.id,
+			:content => msg_obj.content,
+			:attach => msg_obj.attachments.map {|attach| attach.url}.join(' ')
+		}
+		#"#{msgid}#{prepend}#{ts} || #{user} || #{msg}"
+	end
+	
+	def self.id_to_time(id)
+		ms = (id >> 22) + Discordrb::DISCORD_EPOCH
+		Time.at(ms / 1000.0)
+	end
+	
+	def self.get_history(count, got_count, channel, before_id)
+		to_get = count - got_count
+		if to_get < 100
+			case to_get
+			when 0 # Get nothing
+				[]
+			when 1 # Get 1
+				[channel.history(2, before_id).first]
+			else # Get less than 100 but more than 1
+				channel.history(to_get, before_id)
+			end
+		else # Get 100
+			channel.history(100, before_id)
 		end
-		history
 	end
 	
 	

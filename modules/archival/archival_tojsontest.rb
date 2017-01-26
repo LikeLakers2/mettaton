@@ -2,7 +2,22 @@ module ArchivalUnit
 	command(:archivejsontest) do |event, msgcount = "250"|
 		break unless event.user.id == $config["ownerid"]
 		msgcount = msgcount.to_i
-		fns = archive_json_test(event, msgcount)
+		
+		file_num = 0
+		ary_filenames = []
+		now_ts = (Time.now.utc - (60*60*5)).to_s << "-5"
+		archive_json_test(event, msgcount) {|m_ary|
+			m_json = JSON.generate(ary_to_json(m_ary))
+			
+			fn = filename_check(File.join($config["tempdir"], "fa_#{now_ts}_#{file_num}"), ".json")
+			fn.gsub!(/:/, "-")
+			
+			File.write(fn, m_json)
+			ary_filenames << fn
+			
+			file_num += 1
+		}
+		
 		fns2 = [
 			"./temp/fa_2017-01-26 13-29-23 UTC-5_0.json",
 			"./temp/fa_2017-01-26 13-29-23 UTC-5_1.json",
@@ -15,7 +30,7 @@ module ArchivalUnit
 			"./temp/fa_2017-01-26 13-29-23 UTC-5_8.json",
 			"./temp/fa_2017-01-26 13-29-23 UTC-5_9.json"
 		]
-		log = json_files_to_log(fns) {|m|
+		log = json_files_to_log(ary_filenames) {|m|
 			ts = id_to_time(m[:id]).strftime "%Y-%m-%d %H:%M"
 			udist = begin
 								event.bot.user(m[:uid]).distinct
@@ -29,14 +44,10 @@ module ArchivalUnit
 	end
 	
 	def self.archive_json_test(event, count)
-		return [] if count <= 0
+		return if count <= 0
 		event.channel.start_typing
-		now_ts = (Time.now.utc - (60*60*5)).to_s << "-5"
-		start_ts = Time.now.to_f
 		
 		q_grab_to_json = Queue.new
-		# @return Array<String> The filenames of the archives files to be sent
-		ary_filenames = []
 		
 		t = {}
 		t[:grab_history] = Thread.new {
@@ -55,31 +66,17 @@ module ArchivalUnit
 				#sleep 0.5
 				sleep 1
 			end
+			q_grab_to_json.close
 		}
 		
-		t[:history_to_json_file] = Thread.new {
-			file_num = 0
+		t[:history_output] = Thread.new {
 			while m_ary = q_grab_to_json.pop
-				m_json = JSON.generate(ary_to_json(m_ary))
-				
-				fn = filename_check(File.join($config["tempdir"], "fa_#{now_ts}_#{file_num}"), ".json")
-				fn.gsub!(/:/, "-")
-				
-				File.write(fn, m_json)
-				ary_filenames << fn
-				
-				file_num += 1
+				yield m_ary
 			end
 		}
 		
 		t.each_pair {|n,t| p t.value}
 		
-		#ary_filenames.each {|name|
-		#	event.send_file(File.open(name))
-		#	sleep 1
-		#}
-		ary_filenames
-		#nil
 	end
 	
 	def self.json_files_to_log(file_ary)
@@ -95,7 +92,7 @@ module ArchivalUnit
 		fn = "./temp/output.log"
 		log_ary.map! {|m| yield m }
 		File.write(fn, log_ary.join("\n"))
-		[log_ary.first, log_ary.last]
+		fn
 	end
 	
 	
