@@ -1,8 +1,3 @@
-Dir.glob("./patching/*.rb") { |mod|
-	puts "Patching with ./#{mod}"
-	require_relative "./#{mod}"
-}
-
 def eval_cmd(event, *code)
 	return unless event.user.id == $config["ownerid"]
 	
@@ -74,5 +69,6 @@ def check_admin(event)
 end
 
 $bot.ready() do |event|
+	$bot.gateway.check_heartbeat_acks = true
 	event.bot.game = "Oh Yes Simulator"
 end

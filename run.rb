@@ -3,6 +3,11 @@ require_relative './configloader'
 
 #Load discordrb and create the bot instance
 require 'discordrb'
+#Patching
+Dir.glob("./patching/*.rb") { |mod|
+	puts "Patching with ./#{mod}"
+	require_relative "./#{mod}"
+}
 
 AF_FIVE_NUL = "\0"*5
 $bot = Discordrb::Commands::CommandBot.new token: $credentials["token"], client_id: $credentials["client_id"],
