@@ -24,12 +24,13 @@ module ArchivalUnit
 							archive_memory(event, msgcount, withids)
 						else
 							if check_admin(event)
-								archive_disk(event, msgcount, withids)
+								archive_disk(event, msgcount, withids, 3)
 							else
 								event.respond "You shouldn't need to archive over 2000 messages.\nOn the off-chance that you do, contact a mod or admin!"
-								break
+								nil
 							end
 						end
+		return if filen.nil?
 		
 		#1024*1024*8 == 8388608
 		#Round down to 8000000 for safety
@@ -68,21 +69,29 @@ module ArchivalUnit
 		file
 	end
 	
-	def self.archive_disk(event, msgcount, withids)
+	def self.archive_disk(event, msgcount, withids, yields_before_dump = 1)
 		file_num = 0
 		json_filenames = []
 		now_ts = (Time.now.utc - (60*60*5)).to_s << "-5"
+		m_json_ary = []
 		
+		num_yields = 0
 		archive_yield(event, msgcount) {|m_ary|
-			m_json = JSON.generate(ary_to_hash(m_ary))
+			m_json_ary += m_ary
+			num_yields += 1
 			
-			fn = filename_check(File.join($config["tempdir"], "fa_#{now_ts}_#{file_num}"), ".json")
-			fn.gsub!(/:/, "-")
-			
-			File.write(fn, m_json)
-			json_filenames << fn
-			
-			file_num += 1
+			if (num_yields >= yields_before_dump) || m_ary.length < 100
+				m_json = JSON.generate(ary_to_hash(m_json_ary))
+				fn = filename_check(File.join($config["tempdir"], "fa_#{now_ts}_#{file_num}"), ".json")
+				fn.gsub!(/:/, "-")
+				
+				File.write(fn, m_json)
+				json_filenames << fn
+				
+				file_num += 1
+				num_yields = 0
+				m_json_ary = []
+			end
 		}
 		
 		log = json_files_to_log(event, json_filenames) {|m|
