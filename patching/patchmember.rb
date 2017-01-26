@@ -1,4 +1,3 @@
-#This doesn't do anything at the moment.
 module Discordrb
 	class Bot
 		def update_presence(data)
@@ -15,10 +14,12 @@ module Discordrb
       if server.member_cached?(user_id)
         member = server.member(user_id)
       else
+        # Don't cache if this is received just after someone leaves
+        return if data['status'] == 'offline'
+
         # If the member is not cached yet, it means that it just came online from not being cached at all
         # due to large_threshold. Fortunately, Discord sends the entire member object in this case, and
         # not just a part of it - we can just cache this member directly
-				#return if data['status'] == 'offline'
         member = Member.new(data, server, self)
         debug("Implicitly adding presence-obtained member #{user_id} to #{server_id} cache")
 
