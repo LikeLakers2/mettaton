@@ -4,7 +4,7 @@ module ArchivalUnit
 	#####################
 	###ARCHIVE#COMMAND###
 	#####################
-	command(:archive) do |event, msgcount = "250"|
+	command(:archive) do |event, msgcount = "250", withids = nil|
 		break unless check_event(event)
 		if !(check_admin(event))
 			break if event.channel.id == 120330239996854274  #Newhome, check for admin
@@ -14,10 +14,14 @@ module ArchivalUnit
 		event.channel.start_typing
 		
 		msgcount = msgcount.to_i
+		withids = false
+		withids = true if withids
+		
+		
 		filen = if msgcount <= 2000
-							archive_memory(event, msgcount)
+							archive_memory(event, msgcount, withids)
 						else
-							archive_disk(event, msgcount)
+							archive_disk(event, msgcount, withids)
 						end
 		
 		#1024*1024*8 == 8388608
@@ -31,17 +35,16 @@ module ArchivalUnit
 	end
 	
 	
-	def self.archive_memory(event, msgcount)
+	def self.archive_memory(event, msgcount, withids)
 		if msgcount < 0
 			event.respond "I can't archive the future."
 			return
 		end
 		
-		withids = false
 		archive_text = []
 		archive_yield(event, msgcount) {|m_ary|
 			m_ary.each {|m|
-				archive_text << {:id => m.id, :msg => msg_to_string(m)}
+				archive_text << {:id => m.id, :msg => msg_to_string(m, nil, withids)}
 			}
 		}
 		
@@ -58,7 +61,7 @@ module ArchivalUnit
 		file
 	end
 	
-	def self.archive_disk(event, msgcount)
+	def self.archive_disk(event, msgcount, withids)
 		file_num = 0
 		ary_filenames = []
 		now_ts = (Time.now.utc - (60*60*5)).to_s << "-5"
@@ -76,13 +79,14 @@ module ArchivalUnit
 		}
 		
 		log = json_files_to_log(ary_filenames) {|m|
+			id = withids ? "#{m[:id]} " : ""
 			ts = id_to_time(m[:id]).strftime "%Y-%m-%d %H:%M"
 			udist = begin
 								event.bot.user(m[:uid]).distinct
 							rescue
 								"UserID #{m[:uid]}"
 							end
-			"#{m[:id]} #{ts} || #{udist} || #{m[:content]} #{m[:attach]}"
+			"#{id}#{ts} || #{udist} || #{m[:content]} #{m[:attach]}"
 		}
 		
 		log
