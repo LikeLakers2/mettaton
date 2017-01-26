@@ -1,8 +1,3 @@
-Dir.glob("./patching/*.rb") { |mod|
-	puts "Patching with ./#{mod}"
-	require_relative "./#{mod}"
-}
-
 def eval_cmd(event, *code)
 	return unless event.user.id == $config["ownerid"]
 	
