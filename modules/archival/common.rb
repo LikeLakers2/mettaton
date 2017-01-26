@@ -16,6 +16,7 @@ module ArchivalUnit
 		return if count <= 0
 		event.channel.start_typing
 		
+		wait_time = get_wait_time(count)
 		q_grab_to_history = Queue.new
 		
 		t = {}
@@ -32,8 +33,8 @@ module ArchivalUnit
 				end
 				before_id = history.last.id
 				got_count += history.length
-				#sleep 0.5
-				sleep 1
+				
+				sleep wait_time
 			end
 		}
 		

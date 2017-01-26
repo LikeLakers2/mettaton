@@ -1,4 +1,19 @@
 module ArchivalUnit
+	# Make this it's own method so I can update it easier during operation
+	def self.get_wait_time(x)
+		get_y_intercept(1, 0.1, 2000, 1, x)
+	end
+	def self.get_y_intercept(lowerlimit, lowerval, upperlimit, upperval, x)
+		# y - yA = ((yB - yA)/(xB - xA))*(x - xA)
+		# yB = lowerlimit   # yA = lowerval
+		# xB = upperlimit   # xA = upperval
+		# x = x
+		return upperval if x >= upperlimit
+		return lowerval if x <= lowerlimit
+		((lowerlimit - lowerval)/(upperlimit - upperval)) * (x - upperval) + lowerval
+	end
+	
+	
 	def self.ary_to_hash(msg_ary)
 		msg_ary.map {|m| msg_to_hash(m)}
 	end
