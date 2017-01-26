@@ -236,7 +236,8 @@ module CharAppManager
 		# ~ HAS   || CONTAINS   (text.match?(/.*searchtext.*/i))
 		# REG `regex` || REGEX   (Regexp.new(regex).match(text))
 		# !op NOT || NOT
-		p params
+		
+		#p params
 		field = params[0]
 		op = params[1]
 		searchtext = params[2]
