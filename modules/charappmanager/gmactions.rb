@@ -1,5 +1,4 @@
 module CharAppManager
-	
 	command([:approve, :pending, :deny]) do |event, charid, *reason|
 		break unless check_event(event, true)
 		set_status(event.command.name, event, charid)
@@ -53,7 +52,13 @@ module CharAppManager
 		
 		ownerid = @characters[servid][charid]["ownerid"]
 		u = event.server.member(ownerid)
-		u.pm(statusmsg) unless u.nil?
+		unless u.nil?
+			if u.role?(251776958650777600) # RP-Application
+				to_add = event.server.role(250917798845349888) # Roleplayer
+				to_remove = event.server.role(251776958650777600) # RP-Application
+				u.modify_roles(to_add, to_remove) # -RP-Application, +Roleplayer
+			end
+			u.pm(statusmsg)
+		end
 	end
-	
 end
