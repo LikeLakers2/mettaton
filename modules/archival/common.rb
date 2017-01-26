@@ -16,13 +16,17 @@ module ArchivalUnit
 	# Format of strings: "2016-11-30 11:24:18 UTC || MichiRecRoom#9507 || hello im a message http://attachment.com/attachment.txt"
 	def self.msg_to_string(msg_obj, prepend = nil, withid = false)
 		ts = (msg_obj.timestamp.utc - (60*60*5)).strftime "%Y-%m-%d %H:%M"        # 2016-11-30 11:24:18 UTC
-		user = "#{msg_obj.author.distinct}" # MichiRecRoom#9507
+		user = begin
+						 msg_obj.author.distinct
+					 rescue
+						 "UserID #{m[:uid]}"
+					 end
 		
 		msg = msg_obj.content
 		msg << " " << msg_obj.attachments.map {|attach| attach.url}.join(' ') unless msg_obj.attachments.empty?
 		# #{content} #{attach1} #{attach2}
 		
-		msgid = withid ? "#{msg_obj.id.to_s} " : ""
+		msgid = withid ? "#{msg_obj.id} " : ""
 		prepend = prepend.nil? ? "" : prepend
 		"#{msgid}#{prepend}#{ts} || #{user} || #{msg}"
 	end
