@@ -50,6 +50,7 @@ module CharAppManager
 			statusmsg << "\n\nThe reason given for this action is:\n#{reason}"
 		end
 		
+		return unless action == :approve
 		ownerid = @characters[servid][charid]["ownerid"]
 		u = event.server.member(ownerid)
 		unless u.nil?
