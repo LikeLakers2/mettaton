@@ -9,3 +9,9 @@ If you wish to verify whether a copy of this bot is the one I, LikeLakers2/Michi
 
 ## Suggesting features or fixes
 Feel free to [create an issue](https://github.com/LikeLakers2/mettaton/issues/new) to suggest new features or fixes! PRs are also allowed, though there is no guarantee I will merge them.
+
+## Dependencies
+If you were to use this bot without any modifications to the code, you would need the following gems to obtain all functionality:
+* [discordrb v3.1.1](https://rubygems.org/gems/discordrb/versions/3.1.1) -- Currently awaiting testing on v3.2.0, some parts of the code (namely, the [patches folder](/patching)) were made for v3.1.1 and do not work on v3.2.0
+* [rest-client](https://rubygems.org/gems/rest-client) -- This is installed as a dependency by discordrb. I use it within my eval command to allow me to execute code from a file attached to a message, rather than be limited to what discord allows me to send as message content.
+* [json](https://rubygems.org/gems/json) -- This is installed as a dependency by discordrb. Used for data storage.
