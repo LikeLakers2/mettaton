@@ -53,7 +53,7 @@ module CharAppManager
 		ownerid = @characters[servid][charid]["ownerid"]
 		u = event.server.member(ownerid)
 		unless u.nil?
-			if u.role?(251776958650777600) # RP-Application
+			if action == :approve && u.role?(251776958650777600) # RP-Application
 				to_add = event.server.role(250917798845349888) # Roleplayer
 				to_remove = event.server.role(251776958650777600) # RP-Application
 				u.modify_roles(to_add, to_remove) # -RP-Application, +Roleplayer
