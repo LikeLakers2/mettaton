@@ -9,10 +9,8 @@
 
 require 'json'
 
-def array_strng_to_int(array)
-	result = []
-	array.each {|item| result << item.to_i }
-	result
+def ary_str2int(array)
+	array.map {|item| item.to_i }
 end
 
 def global_reload_config
@@ -34,10 +32,10 @@ def global_reload_config
 	$modconfig = j["modconfig"]
 	
 	puts "Loading ignored_users.txt"
-	$ignored_users = array_strng_to_int(File.readlines("ignored_users.txt"))
+	$ignored_users = ary_str2int(File.readlines("ignored_users.txt"))
 	
 	puts "Loading admin_roles.txt"
-	$admin_roles = array_strng_to_int(File.readlines("admin_roles.txt"))
+	$admin_roles = ary_str2int(File.readlines("admin_roles.txt"))
 	
 	#Put this last just to be absolutely sure.
 	$credentials = JSON.parse(File.open("creds.json").read)
