@@ -4,85 +4,112 @@ module ArchivalUnit
 	#####################
 	###ARCHIVE#COMMAND###
 	#####################
-	command(:archive) do |event, msgcount = 250, all_confirm = nil|
+	command(:archive) do |event, msgcount = "250", withids = nil|
 		break unless check_event(event)
 		if !(check_admin(event))
 			break if event.channel.id == 120330239996854274  #Newhome, check for admin
-			break if msgcount.to_i >= 2500
 		end
+		break unless event.user.id == $config["ownerid"]
 		
-		all_messages = false
-		withids = false
-		
-		if msgcount.to_s.downcase == "all"
-			if check_admin(event)
-				if all_confirm == "confirm"
-					all_messages = true
-				elsif all_confirm == "withids"
-					all_messages = true
-					withids = true
-				else
-					event << "All messages? That might take a while."
-					event << "Use `rp!archive all confirm` (case-sensitive) to make sure you wanna do this."
-					event << "You can also use `rp!archive all withids` to have me archive the message IDs too."
-					break
-				end
-			else
-				event << "You don't have permission to do that."
-				break
-			end
-		else
-			msgcount = msgcount.to_i
-			if msgcount == 0
-				#Upload empty file in response
-				break
-			elsif msgcount < 0
-				event.respond "I can't archive the future."
-				break
-			end
+		msgcount = msgcount.to_i
+		if msgcount <= 0
+			event.respond "Please enter a valid amount of messages to archive!"
+			break
 		end
+		withids = withids ? true : false
 		
 		event.channel.start_typing
 		
-		if all_messages
-			history = grab_history_all(event)
-		else
-			history = grab_history(event, msgcount)  # [[250,201],[200,101],[100,1]] - Message objects
-		end
-		history_text = history_to_text(history, withids)  # [250, 201, 200, 101, 100, 1] - String objects
-		file = save_log(event, history_text) # File name - String object
+		filen = if msgcount <= 2000
+							archive_memory(event, msgcount, withids)
+						else
+							if check_admin(event)
+								archive_disk(event, msgcount, withids, 3)
+							else
+								event.respond "You shouldn't need to archive over 2000 messages.\nOn the off-chance that you do, contact a mod or admin!"
+								nil
+							end
+						end
+		return if filen.nil?
 		
 		#1024*1024*8 == 8388608
 		#Round down to 8000000 for safety
-		if File.size(file) >= 8000000
+		if File.size(filen) >= 8000000
 			event << "Archive is 8MB or larger. Please ask the owner/maintainer of this bot, <@#{$config["ownerid"]}>, for the log."
 			event << "This notice might disappear soon, if the owner ever gets off their lazy butt and implements Dropbox support."
 		else
-			event.channel.send_file(File.open(file, "r"), caption: "Here's your archive.")
+			event.channel.send_file(File.open(filen, "r"), caption: "Here's your archive.")
 		end
 	end
 	
 	
+	def self.archive_memory(event, msgcount, withids)
+		if msgcount < 0
+			event.respond "I can't archive the future."
+			return
+		end
+		
+		archive_text = []
+		archive_yield(event, msgcount) {|m_ary|
+			m_ary.each {|m|
+				archive_text << {:id => m.id, :msg => msg_to_string(m, nil, withids)}
+			}
+		}
+		
+		archive_text.sort! {|a,b|
+			a[:id] <=> b[:id]
+		}
+		
+		archive_text.map! {|m|
+			m[:msg]
+		}
+		
+		file = save_log(event, archive_text) # File name - String object
+		
+		file
+	end
 	
-	def self.grab_history_all(event)
-		history = []
-		before_id = nil
-		while true
-			#Discord only replies with 100 messages at max for each history request
-			history << event.channel.history(100, before_id)
+	def self.archive_disk(event, msgcount, withids, yields_before_dump = 1)
+		file_num = 0
+		json_filenames = []
+		now_ts = (Time.now.utc - (60*60*5)).to_s << "-5"
+		m_json_ary = []
+		
+		num_yields = 0
+		archive_yield(event, msgcount) {|m_ary|
+			m_json_ary += m_ary
+			num_yields += 1
 			
-			if history.last.empty? or history.last.length < 100 #or before_id == history.last.last.id
-				#Short-circuit if we notice that we aren't getting any more messages.
-				break
-			else
-				#Discord outputs latest messages first in the array
-				before_id = history.last.last.id
-				#So we don't spam the servers
-				sleep 1
+			if (num_yields >= yields_before_dump) || m_ary.length < 100
+				m_json = JSON.generate(ary_to_hash(m_json_ary))
+				fn = filename_check(File.join($config["tempdir"], "fa_#{now_ts}_#{file_num}"), ".json")
+				fn.gsub!(/:/, "-")
+				
+				File.write(fn, m_json)
+				json_filenames << fn
+				
+				file_num += 1
+				num_yields = 0
+				m_json_ary.clear
 			end
-		end
-		history
+		}
+		
+		log = json_files_to_log(event, json_filenames) {|m|
+			id = withids ? "#{m[:id]} " : ""
+			ts = id_to_time(m[:id]).strftime "%Y-%m-%d %H:%M"
+			udist = begin
+								event.bot.user(m[:uid]).distinct
+							rescue
+								"UserID #{m[:uid]}"
+							end
+			"#{id}#{ts} || #{udist} || #{m[:content]} #{m[:attach]}"
+		}
+		
+		File.delete(*json_filenames)
+		
+		log
 	end
+	
 	
 	
 	#####################
