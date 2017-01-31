@@ -52,7 +52,7 @@ end
 
 def log_event(event)
 	servid = event.server.nil? ? "pm" : event.server.id
-	puts "CommandUsage: #{event.user.distinct} (#{event.user.id}) (in #{servid.to_s}, #{event.channel.id.to_s}) used '#{event.content}'"
+	puts "CMD: #{event.user.distinct} (U#{event.user.id}) (in S#{servid.to_s} C#{event.channel.id.to_s}) used '#{event.content}'"
 end
 
 def check_ignored(event)
