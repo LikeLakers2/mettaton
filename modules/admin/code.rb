@@ -35,35 +35,47 @@ module BotAdmin
 		nil
 	end
 	
-	command(:getrolessoicandoathing, min_args: 0, max_args: 1, usage: "!roles [role_id]") do |event, id = nil|
+	command(:roles) do |event|
 		break unless event.user.id == $config["ownerid"]
-		if id.nil?
-			roles = event.server.roles
+		roles = event.server.roles
+		
+		event << "Roles for #{event.server.name}:"
+		event << ""
+		event << "(ROLE NAME) | (ID) | (PERMISSION BITS)"
+		event << "```"
+		roles.sort{ |a,b|
+			b.position <=> a.position #Reverse order so @everyone is last
+		}.each { |r|
+			event << "#{r.name} | #{r.id} | #{r.permissions.bits}"
+		}
+		event << "```"
+	end
+	
+	command(:permissions) do |event, id = nil|
+		break unless event.user.id == $config["ownerid"]
+		id ||= event.author.id
+		id = id.to_i
+		thing = event.server.role(id) || event.server.member(id)
+		if thing
+			flags = Discordrb::Permissions::Flags
+			if thing.is_a?(Discordrb::Role)
+				perms = flags.values.map{|v|
+					thing.permissions.instance_variable_get("@#{v}")
+				}
+			elsif thing.is_a?(Discordrb::Member)
+				perms = flags.values.map {|v|
+					thing.permission?(v)
+				}
+			end
 			
-			event << "Roles for #{event.server.name}:"
-			event << ""
-			event << "(ROLE NAME) | (ID) | (PERMISSION BITS)"
+			event << "Permissions for #{thing.name} in #{event.server.name}:"
 			event << "```"
-			roles.sort{ |a,b|
-				b.position <=> a.position #Reverse order so @everyone is last
-			}.each { |r|
-				event << "#{r.name} | #{r.id} | #{r.permissions.bits}"
+			Discordrb::Permissions::Flags.each_value.with_index { |name,idx|
+				event << "	#{name}: #{perms[idx]}"
 			}
 			event << "```"
 		else
-			role = event.server.role(id)
-			if role
-				flags = role.permissions.Flags
-				
-				event << "Permissions for #{role.name}:"
-				event << "```"
-				flags.each_pair { |perm, value|
-					event << "	#{perm}: #{value}"
-				}
-				event << "```"
-			else
-				event << "Role ID #{id} not found!"
-			end
+			event << "Could not find a role or member with that ID."
 		end
 	end
 	
