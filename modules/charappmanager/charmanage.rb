@@ -78,7 +78,7 @@ module CharAppManager
 				sv_fn = chardir = File.join($config["datadir"], "charappmanager", "characters", servid.to_s, "char_#{charid}.json")
 				temp_fn = File.join($config["tempdir"], "#{servid}_char_#{charid}.txt")
 				
-				if test('>', sv_fn, temp_fn)
+				unless test('>', sv_fn, temp_fn)
 					msg_to_dump = "#{p_j}\n#{f_j}"
 					
 					File.write(temp_fn, msg_to_dump, {:mode => 'w'})
