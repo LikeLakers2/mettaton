@@ -13,9 +13,7 @@ def eval_cmd(event, *code)
 	rescue => exc
 		e = exc.inspect
 		e << "\n" << exc.backtrace.join("\n")
-		#puts e
 		
-		#event << "An error occured :disappointed:"
 		exc_msg = []
 		exc_msg << "```"
 		e.gsub!(/`/, "'")
