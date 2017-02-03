@@ -18,7 +18,10 @@ def eval_cmd(event, *code)
 		#event << "An error occured :disappointed:"
 		exc_msg = []
 		exc_msg << "```"
-		exc_msg << e.gsub(/`/, "'")
+		e.gsub!(/`/, "'")
+		e.gsub!(/\/home\/minecraft\/wikibot/i, "$BOT_HOME")
+		e.gsub!(/\/opt\/rubies\/ruby-2\.3\.1\/lib\/ruby\/gems\/2\.3\.0\/gems/i, "$GEM_HOME")
+		exc_msg << e
 		exc_msg << "```"
 		
 		exc_msg = exc_msg.join("\n")
