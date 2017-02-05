@@ -12,6 +12,8 @@ If you wish to verify whether a copy of this bot is the one I, LikeLakers2/Michi
 ## Suggesting features or fixes
 Feel free to [create an issue](https://github.com/LikeLakers2/mettaton/issues/new) to suggest new features or fixes! PRs are also allowed, though there is no guarantee I will merge them.
 
+If you wanna see what I have in mind to add or change about this, [check the roadmap!](https://github.com/LikeLakers2/mettaton/projects/1)
+
 ## Dependencies
 If you were to use this bot without any modifications to the code, you would need the following gems to obtain all functionality:
 * [discordrb v3.1.1](https://rubygems.org/gems/discordrb/versions/3.1.1) -- Currently awaiting testing on v3.2.0, some parts of the code (namely, the [patches folder](/patching)) were made for v3.1.1 and do not work on v3.2.0
