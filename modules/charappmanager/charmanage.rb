@@ -219,6 +219,10 @@ module CharAppManager
 			event.respond ":mailbox_with_mail: Please check your DMs! If you don't receive one, check your privacy settings and try again!"
 		elsif page2 == "@me" or page2 == "me"
 			userid = event.user.id
+			pagination = make_list(event, @characters[servid].select {|c|
+				next if c.nil?
+				c["ownerid"] == userid
+			})
 			text = "List of all characters owned by **#{event.user.distinct}**:\n\n"
 			text << pagination.join("\n")
 			
