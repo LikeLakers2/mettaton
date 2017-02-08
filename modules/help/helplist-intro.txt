@@ -4,7 +4,7 @@ Any time you see `< >` around a parameter, that means it's required. You **MUST*
 Any time you see `[ ]` around a parameter, that means it's optional. You are **not** required to specify these parameters.
 Do not include `< >` or `[ ]` around your parameters when executing commands.
 
-To force a parameter to have spaces, put `"quotes"` around your parameter. For example, `rp!cm set Name "Mr. Bags"` will force "Mr. Bags" to be one parameter rather than two.
+To force a parameter to have spaces, put `"quotes"` around your parameter. For example, `rp!set <ID> Name "Mr. Bags"` will force "Mr. Bags" to be one parameter rather than two.
 
 My normal invoker is `rp!`, however you may also use these in place of that: `mtt!`, `mettaton!`, `:mttyeah:`, `:mttoh:`
 
