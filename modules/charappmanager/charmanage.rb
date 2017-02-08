@@ -173,13 +173,11 @@ module CharAppManager
 			else
 				key = @characters[servid][charid].prop_get(prop)
 				if key.nil?
-					@characters[servid][charid].properties[prop] = url_block(prop_text)
+					@characters[servid][charid].properties[prop] = prop_text
 					msg = "Property `#{prop}` for that character has been created."
 				else
-					if key == "ownerid"
-						prop_text = prop_text.to_i
-					end
-					@characters[servid][charid].properties[key] = url_block(prop_text)
+					prop_text = prop_text.to_i if key == "ownerid"
+					@characters[servid][charid].properties[key] = prop_text
 					msg = "Property `#{key}` for that character has been changed."
 				end
 			end
