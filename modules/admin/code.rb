@@ -41,12 +41,12 @@ module BotAdmin
 		
 		event << "Roles for #{event.server.name}:"
 		event << ""
-		event << "(ROLE NAME) | (ID) | (PERMISSION BITS)"
+		event << "(ID) | (ROLE NAME) | (PERMISSION BITS)"
 		event << "```"
 		roles.sort{ |a,b|
 			b.position <=> a.position #Reverse order so @everyone is last
 		}.each { |r|
-			event << "#{r.name} | #{r.id} | #{r.permissions.bits}"
+			event << "#{r.id} | #{r.name} | #{r.permissions.bits}"
 		}
 		event << "```"
 	end
