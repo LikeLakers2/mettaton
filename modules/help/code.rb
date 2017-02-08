@@ -5,7 +5,7 @@ module HelpCommand
 		break unless check_event(event)
 		command = do_command(command)
 		
-		event.respond ":mailbox_with_mail: Please check your DMs! If you don't receive one, check your privacy settings and try again!"
+		event.respond ":mailbox_with_mail: Please check your DMs! If you don't receive one, check your privacy settings and try again!" unless event.channel.private?
 		if command.empty? or command == "help"
 			helplist(event)
 		else
