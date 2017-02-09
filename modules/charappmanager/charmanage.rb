@@ -116,6 +116,15 @@ module CharAppManager
 				msg = "Please specify a field to edit!"
 			elsif field_text.nil?
 				key = @characters[servid][charid].field_get(field)
+				msg << "What do you want to do with `#{field}`?\n"
+				if key.nil?
+					msg << "If you want to create that field, just put some text after the field name!"
+				else
+					msg << "If you want to edit that field, just put some text after the field name!\n"
+					msg << "Alternatively, if you want to delete that field, just type `delete` after the field name."
+				end
+			elsif field_text.downcase == "delete"
+				key = @characters[servid][charid].field_get(field)
 				if key.nil?
 					msg = "That field does not exist."
 				elsif default_fields.keys.include? key
@@ -156,13 +165,22 @@ module CharAppManager
 			#key = @characters[servid][charid].prop_get(prop)
 			
 			if prop.nil?
-				msg = "Please specify a field to edit!"
+				msg = "Please specify a property to edit!"
 			elsif prop == "charid"
 				msg = "You are not allowed to set the character ID."
 			elsif prop_text.nil?
 				key = @characters[servid][charid].prop_get(prop)
+				msg << "What do you want to do with `#{prop}`?\n"
 				if key.nil?
-					msg = "That field does not exist."
+					msg << "If you want to create that prop, just put some text after the prop name!"
+				else
+					msg << "If you want to edit that prop, just put some text after the prop name!\n"
+					msg << "Alternatively, if you want to delete that prop, just type `delete` after the prop name."
+				end
+			elsif prop_text.downcase == "delete"
+				key = @characters[servid][charid].prop_get(prop)
+				if key.nil?
+					msg = "That property does not exist."
 				elsif default_fields.keys.include? key
 					@characters[servid][charid].properties[key] = ""
 					msg = "Property `#{key}` for that character has been wiped."
