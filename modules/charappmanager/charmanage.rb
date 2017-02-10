@@ -481,13 +481,14 @@ module CharAppManager
 		pos = 0
 		c = event.content
 		
-		pos = c.index(params[1])+params[1].length
+		bpos = c.index(params[1])
+		pos = bpos+params[1].length
 		
-		#pos += 1 if (c[bpos-1] == "\"" && c[pos+1] == "\"")
+		pos -= 1 unless (c[bpos-1] == '"' && c[pos] == '"')
 		pos += 2
 		
 		text = c[pos..-1]
-		text = text[1..-2] if (text[0] == "\"" && text[-1] == "\"")
+		text = text[1..-2] if (text.start_with?('"') && text.end_with?('"'))
 		text
 	end
 end
