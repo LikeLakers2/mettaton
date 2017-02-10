@@ -109,7 +109,7 @@ module CharAppManager
 		msg = ""
 		if is_owner?(servid, charid, userid) or check_admin(event)
 			field = params.empty? ? nil : params[1]
-			field_text = params.empty? ? nil : (params[2].nil? ? nil : params[2..-1].join(' '))
+			field_text = params.empty? ? nil : (params[2].nil? ? nil : get_text_param(event, params))
 			#key = @characters[servid][charid].field_get(field)
 			
 			if field.nil?
@@ -161,7 +161,7 @@ module CharAppManager
 		msg = ""
 		if check_admin(event)
 			prop = params.empty? ? nil : params[1]
-			prop_text = params.empty? ? nil : (params[2].nil? ? nil : params[2..-1].join(' '))
+			prop_text = params.empty? ? nil : (params[2].nil? ? nil : get_text_param(event, params))
 			#key = @characters[servid][charid].prop_get(prop)
 			
 			if prop.nil?
@@ -475,5 +475,19 @@ module CharAppManager
 			next if char.nil?
 			char["charid"] == charid_or_name.to_i || (char["Name"].nil? ? false : char["Name"].downcase == charid_or_name.to_s.downcase)
 		}
+	end
+	
+	def self.get_text_param(event, params)
+		pos = 0
+		c = event.content
+		
+		pos = c.index(params[1])+params[1].length
+		
+		#pos += 1 if (c[bpos-1] == "\"" && c[pos+1] == "\"")
+		pos += 2
+		
+		text = c[pos..-1]
+		text = text[1..-2] if (text[0] == "\"" && text[-1] == "\"")
+		text
 	end
 end
