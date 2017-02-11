@@ -183,7 +183,7 @@ module CharAppManager
 				
 				if preview.length > Discordrb::CHARACTER_LIMIT
 					time = (Time.now.utc - (60*60*5)).to_s << "-5"
-					filename = File.join($config["tempdir"], "#{servid}_#{userid}_#{time}.txt")
+					filename = File.join($config["tempdir"], "#{@regstate[userid][:servid]}_#{userid}_#{time}.txt")
 					filename.gsub!(/:/, "-")
 				
 					File.write(filename, preview, {:mode => 'w'})
