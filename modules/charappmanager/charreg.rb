@@ -176,9 +176,24 @@ module CharAppManager
 		when :fieldchoice   #When choice is made
 			case text.downcase
 			when "preview" #Preview
+				preview = ''
 				@regstate[userid][:chardata].each {|k,v|
-					msg << "`#{k}`: #{v}\n"
+					preview << "`#{k}`: #{v}\n"
 				}
+				
+				if preview.length > Discordrb::CHARACTER_LIMIT
+					time = (Time.now.utc - (60*60*5)).to_s << "-5"
+					filename = File.join($config["tempdir"], "#{servid}_#{userid}_#{time}.txt")
+					filename.gsub!(/:/, "-")
+				
+					File.write(filename, preview, {:mode => 'w'})
+				
+					f = File.open(filename, "r")
+					
+					event.send_file(f, caption: 'Your preview is too large for me to send in a DM!')
+				else
+					msg << preview
+				end
 			when "done" #Done, submit it
 				if msg_get_fields_left(userid).empty?
 					reg_end(event)
