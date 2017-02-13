@@ -123,10 +123,10 @@ module BotAdmin
 		nil
 	end
 	
-	command(:joinserver, help_available: false, min_args: 1, max_args: 1) do |event|
+	command(:joinserver, help_available: false) do |event|
 		break unless event.user.id == $config["ownerid"]
 	
-		event.user.send $bot.invite_link
+		event.user.pm $bot.invite_url
 		nil
 	end
 	

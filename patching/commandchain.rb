@@ -3,9 +3,8 @@ module Discordrb::Commands
 		def execute_bare(event)
 			result = ''
 			quoted = false
-			hacky_delim, hacky_space, hacky_prev, hacky_newline = [0xe001, 0xe002, 0xe003, 0xe004].pack('U*').chars
-			
 			escaped = false
+			hacky_delim, hacky_space, hacky_prev, hacky_newline = [0xe001, 0xe002, 0xe003, 0xe004].pack('U*').chars
 
 			@chain.each_char.each_with_index do |char, index|
 				# Escape character
@@ -18,25 +17,20 @@ module Discordrb::Commands
 					next
 				end
 				
-				# Quote begin
-				if char == @attributes[:quote_start] && !quoted
+				if quoted
+					case char
+					when @attributes[:quote_end]
+						quoted = false
+						next
+					when ' '
+						result += hacky_space
+						next
+					when "\n"
+						result += hacky_newline
+						next
+					end
+				elsif char == @attributes[:quote_start]
 					quoted = true
-					next
-				end
-				
-				# Quote end
-				if char == @attributes[:quote_end] && quoted
-					quoted = false
-					next
-				end
-				
-				if char == ' ' && quoted
-					result += hacky_space
-					next
-				end
-				
-				if char == "\n" && quoted
-					result += hacky_newline
 					next
 				end
 				
