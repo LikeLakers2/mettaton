@@ -78,7 +78,7 @@ module CharAppManager
 				sv_fn = chardir = File.join($config["datadir"], "charappmanager", "characters", servid.to_s, "char_#{charid}.json")
 				temp_fn = File.join($config["tempdir"], "#{servid}_char_#{charid}.txt")
 				
-				unless test('>', sv_fn, temp_fn)
+				if test('>', sv_fn, temp_fn)
 					msg_to_dump = "#{p_j}\n#{f_j}"
 					
 					File.write(temp_fn, msg_to_dump, {:mode => 'w'})
@@ -109,12 +109,21 @@ module CharAppManager
 		msg = ""
 		if is_owner?(servid, charid, userid) or check_admin(event)
 			field = params.empty? ? nil : params[1]
-			field_text = params.empty? ? nil : (params[2].nil? ? nil : params[2..-1].join(' '))
+			field_text = params.empty? ? nil : (params[2].nil? ? nil : get_text_param(event, params))
 			#key = @characters[servid][charid].field_get(field)
 			
 			if field.nil?
 				msg = "Please specify a field to edit!"
 			elsif field_text.nil?
+				key = @characters[servid][charid].field_get(field)
+				msg << "What do you want to do with `#{field}`?\n"
+				if key.nil?
+					msg << "If you want to create that field, just put some text after the field name!"
+				else
+					msg << "If you want to edit that field, just put some text after the field name!\n"
+					msg << "Alternatively, if you want to delete that field, just type `delete` after the field name."
+				end
+			elsif field_text.downcase == "delete"
 				key = @characters[servid][charid].field_get(field)
 				if key.nil?
 					msg = "That field does not exist."
@@ -152,17 +161,26 @@ module CharAppManager
 		msg = ""
 		if check_admin(event)
 			prop = params.empty? ? nil : params[1]
-			prop_text = params.empty? ? nil : (params[2].nil? ? nil : params[2..-1].join(' '))
+			prop_text = params.empty? ? nil : (params[2].nil? ? nil : get_text_param(event, params))
 			#key = @characters[servid][charid].prop_get(prop)
 			
 			if prop.nil?
-				msg = "Please specify a field to edit!"
+				msg = "Please specify a property to edit!"
 			elsif prop == "charid"
 				msg = "You are not allowed to set the character ID."
 			elsif prop_text.nil?
 				key = @characters[servid][charid].prop_get(prop)
+				msg << "What do you want to do with `#{prop}`?\n"
 				if key.nil?
-					msg = "That field does not exist."
+					msg << "If you want to create that prop, just put some text after the prop name!"
+				else
+					msg << "If you want to edit that prop, just put some text after the prop name!\n"
+					msg << "Alternatively, if you want to delete that prop, just type `delete` after the prop name."
+				end
+			elsif prop_text.downcase == "delete"
+				key = @characters[servid][charid].prop_get(prop)
+				if key.nil?
+					msg = "That property does not exist."
 				elsif default_fields.keys.include? key
 					@characters[servid][charid].properties[key] = ""
 					msg = "Property `#{key}` for that character has been wiped."
@@ -173,13 +191,11 @@ module CharAppManager
 			else
 				key = @characters[servid][charid].prop_get(prop)
 				if key.nil?
-					@characters[servid][charid].properties[prop] = url_block(prop_text)
+					@characters[servid][charid].properties[prop] = prop_text
 					msg = "Property `#{prop}` for that character has been created."
 				else
-					if key == "ownerid"
-						prop_text = prop_text.to_i
-					end
-					@characters[servid][charid].properties[key] = url_block(prop_text)
+					prop_text = prop_text.to_i if key == "ownerid"
+					@characters[servid][charid].properties[key] = prop_text
 					msg = "Property `#{key}` for that character has been changed."
 				end
 			end
@@ -459,5 +475,20 @@ module CharAppManager
 			next if char.nil?
 			char["charid"] == charid_or_name.to_i || (char["Name"].nil? ? false : char["Name"].downcase == charid_or_name.to_s.downcase)
 		}
+	end
+	
+	def self.get_text_param(event, params)
+		pos = 0
+		c = event.content
+		
+		bpos = c.index(params[1])
+		pos = bpos+params[1].length
+		
+		pos -= 1 unless (c[bpos-1] == '"' && c[pos] == '"')
+		pos += 2
+		
+		text = c[pos..-1]
+		text = text[1..-2] if (text.start_with?('"') && text.end_with?('"'))
+		text
 	end
 end
