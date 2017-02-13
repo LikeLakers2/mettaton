@@ -1,9 +1,0 @@
-```rp!charmanage delete```
-**Usage**:
-rp!charmanage delete `<character name/ID>`
-
-**Parameters**:
-The character name/ID to delete.
-
-**Description**:
-Deletes a character. You must be the owner of a character or a bot admin to delete it.
