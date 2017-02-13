@@ -6,7 +6,7 @@ def eval_cmd(event, *code)
 		if !att.empty?
 			fn = File.join($config["tempdir"], att[0].filename)
 			File.binwrite(fn, RestClient.get(att[0].url).to_s)
-			eval "eval_event = event; #{File.binread(fn)}"
+			eval "eval_event = event; #{File.read(fn)}"
 		else
 			eval code.join(' ')
 		end
