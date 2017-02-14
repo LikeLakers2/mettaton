@@ -19,7 +19,7 @@ module Discordrb::Commands
 				
 				if quoted
 					case char
-					when @attributes[:quote_end] # Quote end
+					when @attributes[:quote_end]
 						quoted = false
 						next
 					when ' '
@@ -29,7 +29,7 @@ module Discordrb::Commands
 						result += hacky_newline
 						next
 					end
-				elsif char == @attributes[:quote_start] # Quote begin
+				elsif char == @attributes[:quote_start]
 					quoted = true
 					next
 				end

@@ -6,19 +6,20 @@ def eval_cmd(event, *code)
 		if !att.empty?
 			fn = File.join($config["tempdir"], att[0].filename)
 			File.binwrite(fn, RestClient.get(att[0].url).to_s)
-			eval "eval_event = event; #{File.binread(fn)}"
+			eval "eval_event = event; #{File.read(fn)}"
 		else
 			eval code.join(' ')
 		end
 	rescue => exc
 		e = exc.inspect
 		e << "\n" << exc.backtrace.join("\n")
-		#puts e
 		
-		#event << "An error occured :disappointed:"
 		exc_msg = []
 		exc_msg << "```"
-		exc_msg << e.gsub(/`/, "'")
+		e.gsub!(/`/, "'")
+		e.gsub!(/\/home\/minecraft\/wikibot/i, "$BOT_HOME")
+		e.gsub!(/\/opt\/rubies\/ruby-2\.3\.1\/lib\/ruby\/gems\/2\.3\.0\/gems/i, "$GEM_HOME")
+		exc_msg << e
 		exc_msg << "```"
 		
 		exc_msg = exc_msg.join("\n")
@@ -52,7 +53,7 @@ end
 
 def log_event(event)
 	servid = event.server.nil? ? "pm" : event.server.id
-	puts "CommandUsage: #{event.user.distinct} (#{event.user.id}) (in #{servid.to_s}, #{event.channel.id.to_s}) used '#{event.content}'"
+	puts "#{Time.now.to_i} CMD: (U#{event.user.id} S#{servid.to_s} C#{event.channel.id.to_s}) #{event.user.distinct} used '#{event.content}'"
 end
 
 def check_ignored(event)
@@ -69,6 +70,5 @@ def check_admin(event)
 end
 
 $bot.ready() do |event|
-	$bot.gateway.check_heartbeat_acks = true
 	event.bot.game = "Oh Yes Simulator"
 end

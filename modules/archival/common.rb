@@ -89,7 +89,7 @@ module ArchivalUnit
 	#####################
 	def self.reload_config
 		f_array = File.readlines(File.join($config["datadir"], "archivalunit", "logchannels.txt"))
-		@channels = array_strng_to_int(f_array)
+		@channels = ary_str2int(f_array)
 	end
 	
 end

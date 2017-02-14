@@ -1,9 +1,0 @@
-```rp!archivechan```
-**Usage**:
-rp!archivechan `<add|remove|list>`
-
-**Parameters**:
-Action to take upon the auto-logging list.
-
-**Description**:
-Manages the auto-logging feature of this bot. To add a channel to the auto-logging system, use `rp!archivechan add` in the channel you wish to add. To remove a channel, use `rp!archivechan remove` in that channel. To list off the channel IDs that this bot is auto-logging (including those from other servers), use `rp!archivechan list`.
