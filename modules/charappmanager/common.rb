@@ -44,8 +44,6 @@ module CharAppManager
 		@regstate ||= {}
 		@characters ||= {}
 		
-		##### @CHARACTERS #####
-		
 		chardir = File.join($config["datadir"], "charappmanager", "characters")
 		Dir.entries(chardir).each {|servdir|
 			next if servdir == '.' or servdir == '..' or servdir == '.gitkeep'
@@ -53,24 +51,7 @@ module CharAppManager
 			servdir = File.join(chardir, servdir)
 			puts "CharAppManager: Loading characters for server ID #{servid}"
 			
-			#@characters[servid] = Wiki.new
-			@characters[servid] = []
-			app_load_ary = []
-			Dir.glob(File.join(servdir, "char_*.json")) {|app|
-				js = File.read(app)
-				app_load_ary << JSON.parse(js)
-			}
-			
-			len = Dir.entries(servdir).length-3
-			@characters[servid][len] = nil
-			
-			app_load_ary.each {|app|
-				p = PageWithProperties.new(app["properties"], app["fields"])
-				
-				charid = p.properties["charid"]
-				#@characters[servid].add_page!(p, charid)
-				@characters[servid][charid] = p
-			}
+			@characters[servid] = CharacterDB.load_from_dir(servdir)
 		}
 	end
 	
