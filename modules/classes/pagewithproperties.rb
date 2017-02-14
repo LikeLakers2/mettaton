@@ -12,7 +12,7 @@ class PageWithProperties
 	# @return [Hash[String => Object]] A list of properties for this page
 	#		{
 	#			"ownerid" => 98296942768967680,
-	#			"status" => "Pending",
+	#			"Status" => "Pending"
 	#		}
 	attr_accessor :properties
 	
@@ -21,8 +21,8 @@ class PageWithProperties
 	#			"Name" => "Flowey, God of Hyperdeath",
 	#			"Age" => "???",
 	#			"Gender" => "He's a fucking flower",
-	#			"Appearance" => "<http://i.imgur.com/Sw6aRCg.png> <https://i.imgur.com/VeHtcwql.png>",
-	#			"Brief Info" => "He hates people. He uses his vines to ~~fuck bees~~ entangle them and then choke a bitch to death. Also he's Asriel goddamn Dreemurr and he can transform into the God of Hyperdeath whenever he so chooses. He loves getting into fights and killing others.",
+	#			"Basic Appearance" => "<http://i.imgur.com/Sw6aRCg.png> <https://i.imgur.com/VeHtcwql.png>",
+	#			"Brief Bio" => "He hates people. He uses his vines to ~~fuck bees~~ entangle them and then choke a bitch to death. Also he's Asriel goddamn Dreemurr and he can transform into the God of Hyperdeath whenever he so chooses. He loves getting into fights and killing others.",
 	#			"Theme Song" => "<https://www.youtube.com/watch?v=53WGSZVJFm4>"
 	#		}
 	attr_accessor :fields

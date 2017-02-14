@@ -63,7 +63,7 @@ class Wiki
 	def list(&block)
 		output = []
 		self.each {|page|
-			output << yield page
+			output << yield(page)
 		}
 		output
 	end
