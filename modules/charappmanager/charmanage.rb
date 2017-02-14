@@ -48,37 +48,28 @@ module CharAppManager
 		charid = get_charid(event, servid, params[0])
 		return if !charid
 		
-		msg = ""
 		#-------------#
-		propmsg = []
-		fieldmsg = []
 		c = @characters[servid][charid]
-		
-		#####PROPERTIES#####
-		propmsg << "Info for Character ##{charid}:"
-		c.properties.each_pair {|k,v|
-			case k
-			when "charid" then next
-			when "ownerid"
+		intromsg = "Info for Character ##{charid}:"
+		propmsg = c.view_props {|p,v|
+			if p == "ownerid"
 				dist = get_distinct(event, v)
 				if dist.nil?
-					propmsg << "`[Property] Owner ID`: #{v} (User has left this server)"
+					"`[Property] Owner ID`: #{v} (User has left this server)"
 				else
-					propmsg << "`[Property] Owner`: **#{dist}**"
+					"`[Property] Owner`: **#{dist}**"
 				end
 			else
-				propmsg << "`[Property] #{k}`: #{v}"
+				"`[Property] #{p}`: #{v}"
 			end
 		}
-		
-		#####CHAR#FIELDS#####
-		c.fields.each {|k,v|
-			fieldmsg << "`#{k}`: #{v}"
+		fieldmsg = c.view_fields {|f,v|
+			"`#{f}`: #{v}"
 		}
 		
 		cl = Discordrb::CHARACTER_LIMIT
 		pl = 0; fl = 0
-		p_j = propmsg.join("\n");
+		p_j = intromsg + propmsg.join("\n")
 		f_j = fieldmsg.join("\n")
 		pl = p_j.length; fl = f_j.length
 		if pl+fl+1 > cl   #If, combined with a line break, it would be over the character limit
