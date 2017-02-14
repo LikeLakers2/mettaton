@@ -46,6 +46,13 @@ class Wiki
 		@pages.send(sym, *args)
 	end
 	
+	def load_from_dir(str_dir, filename = "*.json")
+		new(Dir.glob(File.join(str_dir, filename)).map {|page|
+			js = JSON.parse(File.read(page))
+			PageWithProperties.new(page["properties"], page["fields"], page["data"])
+		})
+	end
+	
 	
 	
 	#  _      _____  _____ _______ 
