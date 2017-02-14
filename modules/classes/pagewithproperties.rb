@@ -120,10 +120,6 @@ class PageWithProperties
 		@fields.map {|k,v| yield k, v }.join("\n")
 	end
 	
-	def view_short(&block)
-		yield self
-	end
-	
 	#####################
 	#####JSON#METHODS####
 	#####################
