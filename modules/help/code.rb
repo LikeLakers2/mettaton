@@ -6,7 +6,7 @@ module HelpCommand
 		help_cmd
 	end
 	
-	def self.help_cmd(event)
+	def self.help_cmd
 		"My help listing has been moved to https://github.com/LikeLakers2/mettaton/wiki"
 	end
 end
