@@ -20,6 +20,4 @@ class Character < PageWithProperties
 		# TODO: JSON loading
 	end
 	
-	
-
 end
