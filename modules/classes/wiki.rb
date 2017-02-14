@@ -31,6 +31,15 @@ class Wiki
 		end
 	end
 	
+	# Helper method to deal with deleted pages.
+	# @param &block [Proc] A proc that will take a PageWithProperties class object.
+	def each(&block)
+		@pages.each {|page|
+			next if page.nil?
+			yield page
+		}
+	end
+	
 	# We'll assume anything that isn't defined here is meant for the page list itself,
 	# for readability reasons.
 	def method_missing(sym, *args)
@@ -49,16 +58,16 @@ class Wiki
 	
 	# Creates an array of strings, passing each character to &block and returning it in the output.
 	# Due to the way this works, it's basically an each that skips over nils.
-	# @param &block [Proc] A proc that will take a Character class object and return a string.
+	# @param &block [Proc] A proc that will take a PageWithProperties class object and return a string.
 	# @return [Array<String>] The output as an array.
 	def list(&block)
 		output = []
-		@pages.each {|page|
-			next if page.nil?
+		self.each {|page|
 			output << yield page
 		}
 		output
 	end
+	alias_method :map, :list
 	
 	#   _____ ______          _____   _____ _    _ 
 	#  / ____|  ____|   /\   |  __ \ / ____| |  | |
