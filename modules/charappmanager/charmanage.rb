@@ -5,6 +5,7 @@ module CharAppManager
 	
 	command([:charmanage, :cm]) do |event, action = nil, *params|
 		break unless check_event(event)
+		event.respond "This command is deprecated! Please use one of the dedicated commands, listed here: <https://github.com/LikeLakers2/mettaton/wiki#character-manager>"
 		if event.channel.private?
 			event.respond "You should execute this in a server, you know."
 		elsif action.nil?
@@ -40,7 +41,6 @@ module CharAppManager
 		break unless check_event(event)
 		act = "cm_#{event.command.name}".to_sym
 		self.send(act, event, params)
-		event.bot.execute_command(:charmanage, event, [event.command.name, *params])
 	end
 	
 	def self.cm_view(event, params = nil)
