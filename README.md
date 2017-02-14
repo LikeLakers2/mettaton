@@ -18,6 +18,6 @@ If you wanna see what I have in mind to add or change about this, [check the roa
 ## Dependencies
 If you were to use this bot without any modifications to the code, you would need the following gems to obtain all functionality:
 
-* [discordrb v3.1.1](https://rubygems.org/gems/discordrb/versions/3.1.1) -- Currently awaiting testing on v3.2.0, some parts of the code (namely, the [patches folder](/patching)) were made for v3.1.1 and do not work on v3.2.0
+* [discordrb v3.2.0](https://rubygems.org/gems/discordrb) -- Used for Discord websocket connections, as well as being an integral part of how this bot interacts with Discord. The code is patched in a few places using files from the [/patching](patching) directory.
 * [rest-client](https://rubygems.org/gems/rest-client) -- This is installed as a dependency by discordrb. I use it within my eval command to allow me to execute code from a file attached to a message, rather than be limited to what discord allows me to send as message content.
 * [json](https://rubygems.org/gems/json) -- This is installed as a dependency by discordrb. Used for data storage.
