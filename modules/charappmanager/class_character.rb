@@ -4,16 +4,16 @@ class Character < PageWithProperties
 	end
 	
 	def id
-		["charid"]
+		self["charid"]
 	end
 	alias_method :charid, :id
 	
 	def ownerid
-		["ownerid"] #Will change this to a proper attribute later
+		self["ownerid"] #Will change this to a proper attribute later
 	end
 	
 	def name
-		["name"] || "Unnamed Character"
+		self["name"] || "Unnamed Character"
 	end
 	
 	def load_from_json(file)
