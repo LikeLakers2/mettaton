@@ -40,7 +40,17 @@ module CharAppManager
 	command([:view, :set, :setprop, :list, :search, :delete]) do |event, *params|
 		break unless check_event(event)
 		act = "cm_#{event.command.name}".to_sym
-		self.send(act, event, params)
+		msg = self.send(act, event, params)
+		
+		case m.class
+		when String
+			event.respond m unless m.empty?
+		when Array
+			msg.each {|m|
+				event.respond m unless m.empty?
+			}
+		end
+		nil
 	end
 	
 	def self.cm_view(event, params = nil)
@@ -89,11 +99,10 @@ module CharAppManager
 				event.send_file(f, caption: msg_info)
 			else
 				#Send it as two separate messages
-				event.respond p_j
-				event.respond f_j
+				[p_j,f_j]
 			end
 		else
-			return "#{p_j}\n#{f_j}"
+			"#{p_j}\n#{f_j}"
 		end
 	end
 	
@@ -103,12 +112,11 @@ module CharAppManager
 		charid = get_charid(event, servid, params[0])
 		return if !charid
 		
-		msg = ""
+		msg = []
 		c = @characters[servid][charid]
 		if c.is_owner?(event.user) or check_admin(event)
 			field = params.empty? ? nil : params[1]
 			field_text = params.empty? ? nil : (params[2].nil? ? nil : get_text_param(event, params))
-			#key = @characters[servid][charid].field_get(field)
 			
 			if field.nil?
 				msg = "Please specify a field to edit!"
@@ -126,28 +134,28 @@ module CharAppManager
 				if key.nil?
 					msg = "That field does not exist."
 				elsif default_fields.keys.include? key
-					c.fields[key] = ""
+					c.field_set! key, ''
 					msg = "Field `#{key}` for that character has been wiped."
 				else
-					c.fields.delete key
+					c.fields_delete! key
 					msg = "Field `#{key}` for that character has been deleted."
 				end
 			else
 				key = c.field_get(field)
 				if key.nil?
-					c.fields[field] = url_block(field_text)
+					c.fields_set! field, url_block(field_text)
 					msg = "Field `#{field}` for that character has been created."
 				else
-					c.fields[key] = url_block(field_text)
+					c.fields_set! key, url_block(field_text)
 					msg = "Field `#{key}` for that character has been changed."
 				end
 			end
 			save_char(servid, charid)
 		else
-			msg = "You do not have permission to do that!"
+			return "You do not have permission to do that!"
 		end
 		
-		event.respond msg unless msg.empty?
+		msg
 	end
 	
 	def self.cm_setprop(event, params = nil)
