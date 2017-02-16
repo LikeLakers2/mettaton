@@ -93,11 +93,8 @@ module CharAppManager
 				event.respond f_j
 			end
 		else
-			msg << "#{p_j}\n#{f_j}"
+			return "#{p_j}\n#{f_j}"
 		end
-		#-------------#
-		
-		event.respond msg unless msg.empty?
 	end
 	
 	def self.cm_set(event, params = nil)
