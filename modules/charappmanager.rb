@@ -1,4 +1,4 @@
-require_relative './classes/pagewithproperties'
+require_relative './classes/page'
 require_relative './classes/wiki'
 require_relative './charappmanager/class_character'
 require_relative './charappmanager/class_character_wiki'

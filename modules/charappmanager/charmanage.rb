@@ -123,7 +123,6 @@ module CharAppManager
 		msg = []
 		c = @characters[servid][charid]
 		if (c.is_owner?(event.user) and allow_nonadmin) or check_admin(event)
-			#ary = c.arb_type(hash)
 			td = t.downcase
 			
 			aryk = params.empty? ? nil : params[1]

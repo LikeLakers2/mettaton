@@ -1,4 +1,4 @@
-class Character < PageWithProperties
+class Character < Page
 	def is_owner?(userid)
 		ownerid == userid.resolve_id
 	end

@@ -3,17 +3,17 @@ class Wiki
 	######VARIABLES######
 	#####################
 	
-	# @return [Array<PageWithProperties>] A list of pages for this wiki
+	# @return [Array<Page>] A list of pages for this wiki
 	attr_accessor :pages
 	
 	# New wiki.
-	# @param pages [Array<PageWithProperties>] Fill with these pages. Optional, defaults to empty.
+	# @param pages [Array<Page>] Fill with these pages. Optional, defaults to empty.
 	def initialize(pages = nil)
 		@pages = pages || []
 	end
 	
 	# Adds a page to the wiki.
-	# @param page [PageWithProperties] The page to add to the wiki.
+	# @param page [Page] The page to add to the wiki.
 	# @param pos [Integer] The position to add it at. Defaults to nil, used internally to refer to the end of the wiki.
 	def add_page!(page, pos = nil)
 		pos ||= @pages.size
@@ -22,7 +22,7 @@ class Wiki
 	end
 	
 	# Removes a page from the wiki.
-	# @param page [Integer, PageWithProperties] The index of the page to remove. Can also be a Symbol to search for.
+	# @param page [Integer, Page] The index of the page to remove. Can also be a Symbol to search for.
 	def remove_page!(page)
 		if page.is_a? Integer
 			@pages.delete_at page
@@ -49,7 +49,7 @@ class Wiki
 	def load_from_dir(str_dir, filename = "*.json")
 		new(Dir.glob(File.join(str_dir, filename)).map {|page|
 			js = JSON.parse(File.read(page))
-			PageWithProperties.new(page["properties"], page["fields"], page["data"])
+			Page.new(page["properties"], page["fields"], page["data"])
 		})
 	end
 	
@@ -88,7 +88,7 @@ class Wiki
 	# @param field [String] The field name to search
 	# @param op [Symbol] A symbol specifying what method to use to search
 	# @param text [Object] Text to search with.
-	# @return [Array<PageWithProperties>] The results that match your search.
+	# @return [Array<Page>] The results that match your search.
 	def search(field, op, text, invert = false)
 		@pages.select {|page|
 			next if page.nil?

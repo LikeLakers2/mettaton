@@ -7,7 +7,7 @@ module CharAppManager
 	######VARIABLES######
 	#####################
 	
-	# @return [Hash[Integer => Array<PageWithProperties>]]
+	# @return [Hash[Integer => Array<Page>]]
 	# {SERVERID => WIKI}
 	attr_accessor :characters
 	
