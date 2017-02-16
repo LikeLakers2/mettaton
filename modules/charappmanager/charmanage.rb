@@ -181,7 +181,7 @@ module CharAppManager
 				key = @characters[servid][charid].prop_get(prop)
 				if key.nil?
 					msg = "That property does not exist."
-				elsif default_fields.keys.include? key
+				elsif default_props.keys.include? key
 					@characters[servid][charid].properties[key] = ""
 					msg = "Property `#{key}` for that character has been wiped."
 				else
