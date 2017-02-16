@@ -98,6 +98,7 @@ class PageWithProperties
 	def arb_set!(sym, name, value)
 		d = arb_get(sym, name)
 		name = arb_get(sym, name) || name
+		value = value.to_i if d[name].class == Fixnum
 		d[name] = value
 	end
 	

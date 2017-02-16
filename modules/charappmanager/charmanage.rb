@@ -107,7 +107,7 @@ module CharAppManager
 	end
 	
 	def self.cm_set(event, params = nil)
-		set_internal(event, params, :@fields, "Field", false)
+		set_internal(event, params, :@fields, "Field")
 	end
 	
 	def self.cm_setprop(event, params = nil)
@@ -157,7 +157,6 @@ module CharAppManager
 					c.arb_set!(hash, aryk, aryk_text)
 					msg = "#{t} `#{prop}` for that character has been created."
 				else
-					prop_text = prop_text.to_i if key == "ownerid"
 					c.arb_set!(hash, key, aryk_text)
 					msg = "#{t} `#{key}` for that character has been changed."
 				end
