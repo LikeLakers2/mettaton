@@ -104,7 +104,8 @@ module CharAppManager
 		return if !charid
 		
 		msg = ""
-		if is_owner?(servid, charid, userid) or check_admin(event)
+		c = @characters[servid][charid]
+		if c.is_owner?(event.user) or check_admin(event)
 			field = params.empty? ? nil : params[1]
 			field_text = params.empty? ? nil : (params[2].nil? ? nil : get_text_param(event, params))
 			#key = @characters[servid][charid].field_get(field)
@@ -112,7 +113,7 @@ module CharAppManager
 			if field.nil?
 				msg = "Please specify a field to edit!"
 			elsif field_text.nil?
-				key = @characters[servid][charid].field_get(field)
+				key = c.field_get(field)
 				msg << "What do you want to do with `#{field}`?\n"
 				if key.nil?
 					msg << "If you want to create that field, just put some text after the field name!"
@@ -121,23 +122,23 @@ module CharAppManager
 					msg << "Alternatively, if you want to delete that field, just type `delete` after the field name."
 				end
 			elsif field_text.downcase == "delete"
-				key = @characters[servid][charid].field_get(field)
+				key = c.field_get(field)
 				if key.nil?
 					msg = "That field does not exist."
 				elsif default_fields.keys.include? key
-					@characters[servid][charid].fields[key] = ""
+					c.fields[key] = ""
 					msg = "Field `#{key}` for that character has been wiped."
 				else
-					@characters[servid][charid].fields.delete key
+					c.fields.delete key
 					msg = "Field `#{key}` for that character has been deleted."
 				end
 			else
-				key = @characters[servid][charid].field_get(field)
+				key = c.field_get(field)
 				if key.nil?
-					@characters[servid][charid].fields[field] = url_block(field_text)
+					c.fields[field] = url_block(field_text)
 					msg = "Field `#{field}` for that character has been created."
 				else
-					@characters[servid][charid].fields[key] = url_block(field_text)
+					c.fields[key] = url_block(field_text)
 					msg = "Field `#{key}` for that character has been changed."
 				end
 			end
