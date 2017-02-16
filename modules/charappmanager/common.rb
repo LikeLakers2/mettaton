@@ -21,8 +21,7 @@ module CharAppManager
 	end
 	
 	server_create() do |event|
-		#@characters[event.server.id] ||= Wiki.new
-		@characters[event.server.id] ||= []
+		@characters[event.server.id] ||= CharacterDB.new
 	end
 	
 	command(:ceval) do |event, *code|
