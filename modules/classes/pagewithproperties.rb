@@ -63,6 +63,11 @@ class PageWithProperties
 		@data[name] = value
 	end
 	
+	def data_delete!(name)
+		name = data_get(name) || name
+		@data.delete value
+	end
+	
 	#-----#
 	
 	def prop_get(name)
@@ -74,6 +79,11 @@ class PageWithProperties
 		@properties[name] = value
 	end
 	
+	def prop_delete!(name)
+		name = data_get(name) || name
+		@properties.delete value
+	end
+	
 	#-----#
 	
 	def field_get(name)
@@ -83,6 +93,11 @@ class PageWithProperties
 	def field_set!(name, value)
 		name = field_get(name) || name
 		@fields[name] = value
+	end
+	
+	def field_delete!(name)
+		name = data_get(name) || name
+		@fields.delete value
 	end
 	
 	def key?(key)
