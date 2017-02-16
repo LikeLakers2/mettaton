@@ -108,109 +108,10 @@ module CharAppManager
 	
 	def self.cm_set(event, params = nil)
 		set_internal(event, params, :@fields, "Field", false)
-		userid = event.user.id
-		servid = event.server.id
-		charid = get_charid(event, servid, params[0])
-		return if !charid
-		
-		msg = []
-		c = @characters[servid][charid]
-		if c.is_owner?(event.user) or check_admin(event)
-			field = params.empty? ? nil : params[1]
-			field_text = params.empty? ? nil : (params[2].nil? ? nil : get_text_param(event, params))
-			
-			if field.nil?
-				msg = "Please specify a field to edit!"
-			elsif field_text.nil?
-				key = c.field_get(field)
-				msg << "What do you want to do with `#{field}`?"
-				if key.nil?
-					msg << "If you want to create that field, just put some text after the field name!"
-				else
-					msg << "If you want to edit that field, just put some text after the field name!"
-					msg << "Alternatively, if you want to delete that field, just type `delete` after the field name."
-				end
-			elsif field_text.downcase == "delete"
-				key = c.field_get(field)
-				if key.nil?
-					msg = "That field does not exist."
-				elsif default_fields.keys.include? key
-					c.field_set! key, ''
-					msg = "Field `#{key}` for that character has been wiped."
-				else
-					c.fields_delete! key
-					msg = "Field `#{key}` for that character has been deleted."
-				end
-			else
-				key = c.field_get(field)
-				if key.nil?
-					c.fields_set! field, url_block(field_text)
-					msg = "Field `#{field}` for that character has been created."
-				else
-					c.fields_set! key, url_block(field_text)
-					msg = "Field `#{key}` for that character has been changed."
-				end
-			end
-			save_char(servid, charid)
-		else
-			return "You do not have permission to do that!"
-		end
-		
-		msg
 	end
 	
 	def self.cm_setprop(event, params = nil)
 		set_internal(event, params, :@properties, "Property", false)
-		userid = event.user.id
-		servid = event.server.id
-		charid = get_charid(event, servid, params[0])
-		return if !charid
-		
-		msg = []
-		c = @characters[servid][charid]
-		if check_admin(event)
-			prop = params.empty? ? nil : params[1]
-			prop_text = params.empty? ? nil : (params[2].nil? ? nil : get_text_param(event, params))
-			
-			if prop.nil?
-				msg = "Please specify a property to edit!"
-			elsif prop_text.nil?
-				key = c.prop_get(prop)
-				msg << "What do you want to do with `#{prop}`?"
-				if key.nil?
-					msg << "If you want to create that prop, just put some text after the prop name!"
-				else
-					msg << "If you want to edit that prop, just put some text after the prop name!"
-					msg << "Alternatively, if you want to delete that prop, just type `delete` after the prop name."
-				end
-			elsif prop_text.downcase == "delete"
-				key = c.prop_get(prop)
-				if key.nil?
-					msg = "That property does not exist."
-				elsif default_fields.keys.include? key
-					c.prop_set! key, ""
-					msg = "Property `#{key}` for that character has been wiped."
-				else
-					c.prop_delete! key
-					msg = "Property `#{key}` for that character has been deleted."
-				end
-			else
-				key = c.prop_get(prop)
-				if key.nil?
-					c.prop_set! prop, prop_text
-					msg = "Property `#{prop}` for that character has been created."
-				else
-					prop_text = prop_text.to_i if key == "ownerid"
-					c.prop_set! key, prop_text
-					msg = "Property `#{key}` for that character has been changed."
-				end
-			end
-			save_char(servid, charid)
-		else
-			return "You are not allowed to set properties on characters."
-		end
-		
-		msg
 	end
 	
 	def self.set_internal(event, params, hash, t, allow_nonadmin = true)
@@ -240,10 +141,28 @@ module CharAppManager
 					msg << "Alternatively, if you want to delete that #{td}, just type `delete` after the #{td} name."
 				end
 			elsif aryk_text.downcase == 'delete'
-				c.arb_delete!
+				key = c.arb_get(hash, aryk)
+				if key.nil?
+					msg = "That #{td} does not exist."
+				elsif default_arb(hash).keys.include? key
+					c.arb_set!(hash, key, '')
+					msg = "#{t} `#{key}` for that character has been wiped."
+				else
+					c.arb_delete!(hash, key)
+					msg = "#{t} `#{key}` for that character has been deleted."
+				end
 			else
-				
+				key = c.arb_get(hash, aryk)
+				if key.nil?
+					c.arb_set!(hash, aryk, aryk_text)
+					msg = "#{t} `#{prop}` for that character has been created."
+				else
+					prop_text = prop_text.to_i if key == "ownerid"
+					c.arb_set!(hash, key, aryk_text)
+					msg = "#{t} `#{key}` for that character has been changed."
+				end
 			end
+			save_char(servid, charid)
 		else
 			return "You do not have permission to do that!"
 		end
