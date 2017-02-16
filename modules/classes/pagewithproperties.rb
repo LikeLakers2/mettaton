@@ -55,49 +55,60 @@ class PageWithProperties
 	#-----#
 	
 	def data_get(name)
-		@data.select {|k,v| k.downcase == name.downcase }.keys.first
+		arb_get(:@data, name)
 	end
-	
 	def data_set!(name, value)
-		name = data_get(name) || name
-		@data[name] = value
+		arb_set!(:@data, name, value)
 	end
-	
 	def data_delete!(name)
-		name = data_get(name) || name
-		@data.delete value
+		arb_delete!(:@data, name)
 	end
 	
 	#-----#
 	
 	def prop_get(name)
-		@properties.select {|k,v| k.downcase == name.downcase }.keys.first
+		arb_get(:@properties, name)
 	end
-	
 	def prop_set!(name, value)
-		name = prop_get(name) || name
-		@properties[name] = value
+		arb_set!(:@properties, name, value)
 	end
-	
 	def prop_delete!(name)
-		name = data_get(name) || name
-		@properties.delete value
+		arb_delete!(:@properties, name)
 	end
 	
 	#-----#
 	
 	def field_get(name)
-		@fields.select {|k,v| k.downcase == name.downcase }.keys.first
+		arb_get(:@fields, name)
 	end
-	
 	def field_set!(name, value)
-		name = field_get(name) || name
-		@fields[name] = value
+		arb_set!(:@fields, name, value)
+	end
+	def field_delete!(name)
+		arb_delete!(:@fields, name)
 	end
 	
-	def field_delete!(name)
-		name = data_get(name) || name
-		@fields.delete value
+	#-----#
+	
+	# Arbitrary stuff
+	def arb_get(sym, name)
+		arb_type(sym).select {|k,v| k.downcase == name.downcase }.keys.first
+	end
+	
+	def arb_set!(sym, name, value)
+		d = arb_get(sym, name)
+		name = arb_get(sym, name) || name
+		d[name] = value
+	end
+	
+	def arb_delete!(sym, name)
+		d = arb_get(sym, name)
+		name = arb_get(sym, name) || name
+		d.delete name
+	end
+	
+	def arb_type(sym)
+		self.instance_variable_get(sym)
 	end
 	
 	def key?(key)
