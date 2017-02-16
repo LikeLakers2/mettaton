@@ -107,6 +107,7 @@ module CharAppManager
 	end
 	
 	def self.cm_set(event, params = nil)
+		set_internal(event, params, :@fields, "Field", false)
 		userid = event.user.id
 		servid = event.server.id
 		charid = get_charid(event, servid, params[0])
@@ -159,6 +160,7 @@ module CharAppManager
 	end
 	
 	def self.cm_setprop(event, params = nil)
+		set_internal(event, params, :@properties, "Property", false)
 		userid = event.user.id
 		servid = event.server.id
 		charid = get_charid(event, servid, params[0])
@@ -211,7 +213,36 @@ module CharAppManager
 		msg
 	end
 	
-	def self.set_internal(event, section, params); end
+	def self.set_internal(event, params, hash, t, allow_nonadmin = true)
+		userid = event.user.id
+		servid = event.server.id
+		charid = get_charid(event, servid, params[0])
+		return if !charid
+		
+		msg = []
+		c = @characters[servid][charid]
+		if (c.is_owner?(event.user) and allow_nonadmin) or check_admin(event)
+			ary = c.instance_variable_get(hash)
+			td = t.downcase
+			
+			aryk = params.empty? ? nil : params[1]
+			aryk_text = params.empty? ? nil : (params[2].nil? ? nil : get_text_param(event, params))
+			
+			if aryk.nil?
+				msg = "Please specify a #{td} to edit!"
+			elsif aryk_text.nil?
+				
+			elsif aryk_text.downcase == 'delete'
+				
+			else
+				
+			end
+		else
+			return "You do not have permission to do that!"
+		end
+		
+		msg
+	end
 	
 	def self.cm_list(event, params = nil)
 		servid = event.server.id
