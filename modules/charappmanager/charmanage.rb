@@ -222,7 +222,7 @@ module CharAppManager
 		msg = []
 		c = @characters[servid][charid]
 		if (c.is_owner?(event.user) and allow_nonadmin) or check_admin(event)
-			ary = c.instance_variable_get(hash)
+			#ary = c.arb_type(hash)
 			td = t.downcase
 			
 			aryk = params.empty? ? nil : params[1]
@@ -231,9 +231,16 @@ module CharAppManager
 			if aryk.nil?
 				msg = "Please specify a #{td} to edit!"
 			elsif aryk_text.nil?
-				
+				key = c.arb_get(hash, aryk)
+				msg << "What do you want to do with `#{aryk}`?"
+				if key.nil?
+					msg << "If you want to create that #{td}, just put some text after the #{td} name!"
+				else
+					msg << "If you want to edit that #{td}, just put some text after the #{td} name!"
+					msg << "Alternatively, if you want to delete that #{td}, just type `delete` after the #{td} name."
+				end
 			elsif aryk_text.downcase == 'delete'
-				
+				c.arb_delete!
 			else
 				
 			end
