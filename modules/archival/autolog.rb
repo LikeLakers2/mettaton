@@ -12,58 +12,81 @@ module ArchivalUnit
 	#####################
 	
 	message() do |event|
-		log_message(event,"create")
+		log_message(event, :create)
 	end
 	message_edit() do |event|
-		log_message(event,"edit")
+		log_message(event, :edit)
 	end
 	message_delete() do |event|
-		log_message(event,"delete")
+		log_message(event, :delete)
 	end
 	
 	def self.log_message(event, type)
 		return unless @channels.include? event.channel.id
 		
-		date = Time.now.strftime "%Y-%m-%d"
+		id = msg_to_id(event)
+		
+		date = Time.now.strftime '%Y-%m-%d'
 		file = File.join($config["datadir"], "archivalunit", "fulllogs", "#{event.channel.id}_#{date}") << ".json"
-		d = if File.exist?(file)
-					JSON.parse(File.read(file)).select{|m| m['id'] == event.message.id}.first
-				else
-					nil
-				end
-		send("d_msg#{type}", event, d)
+		if File.exist?(file)
+			js = JSON.parse(File.read(file))
+			d = js.find{|m| m['id'] == id}
+		else
+			js = nil
+			d = nil
+		end
+		
+		nd = send("d_msg#{type}", event, d)
+		p nd
+		
+		update_logs(file, js, id, nd)
 	end
 	
-	def self.d_msgcreate(event, d = nil)
-		update_logs(event, id, d_msgdefault(event))
+	def self.d_msgcreate(event, _)
+		d_msgdefault(event)
 	end
-	def self.d_msgedit(event, d)
-		d['hist'] << msgev_to_json(event)
+	def self.d_msgedit(event, data)
+		(data['hist'] ||= []) << msgev_to_hash(event, {'ts'=>Time.now.to_i})
+		data
 	end
-	def self.d_msgdelete(event, d)
-		d['delat'] = event.timestamp.to_i
-	end
-	
-	def self.update_logs(event,id,hash)
-		filename = File.join($config["datadir"], "archivalunit", "fulllogs", "#{event.channel.id}_#{date}") << ".log"
+	def self.d_msgdelete(event, data)
+		data['delat'] = Time.now.to_i
+		data
 	end
 	
+	def self.update_logs(filename, d_json, msgid, msg)
+		d_json ||= []
+		idx = d_json.find_index {|m| m['id'] == msgid } || d_json.length
+		
+		d_json[idx] = msg
+		
+		File.write(filename, JSON.generate(d_json), {:mode => 'w'})
+	end
 	
 	
-	def self.d_msgdefault(event)
+	def self.msg_to_id(event)
+		if event.class == Discordrb::Events::MessageDeleteEvent
+			event.id
+		else
+			event.message.id
+		end
+	end
+	
+	def self.d_msgdefault(event, custom = {})
+		# custom is used in case we want to overwrite some field on this with a non-default
 		{
 			'id'=>event.message.id,
 			'uid'=>event.user.id,
-			'mo'=>msgev_to_json(event),
-			'hist'=>[],
-			'delat'=>nil
+			'mo'=>msgev_to_hash(event)#,
+			#'hist'=>[]#,
+			#'delat'=>nil
 		}
 	end
-	def self.msgev_to_hash(event)
+	def self.msgev_to_hash(event, custom = {})
 		{
 			'ts'=>event.timestamp.to_i,
 			'content'=>event.content,
-			'attach'=>attach_to_ary(event)
+			'attach'=>attach_to_url(event)
 		}
 	end
 	def self.attach_to_url(event)
