@@ -143,4 +143,9 @@ module ArchivalUnit
 	end
 	
 	
+	command(:relogall) do |event|
+		
+	end
+	
+	
 end
