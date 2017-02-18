@@ -77,33 +77,17 @@ module ArchivalUnit
 		{
 			'id'=>event.message.id,
 			'uid'=>event.user.id,
-			'mo'=>msgev_to_hash(event)#,
-			#'hist'=>[]#,
-			#'delat'=>nil
-		}
+			'mo'=>msgev_to_hash(event)
+		}.merge(custom)
 	end
 	def self.msgev_to_hash(event, custom = {})
 		{
 			'ts'=>event.timestamp.to_i,
 			'content'=>event.content,
 			'attach'=>attach_to_url(event)
-		}
+		}.merge(custom)
 	end
 	def self.attach_to_url(event)
 		event.message.attachments.map {|attach| attach.url}
 	end
-	
-	#def self.old_def_json(event)
-	#	{
-	#		"t"=>[0,1,2],
-	#		"mid"=>event.message.id,
-	#		"ts"=>event.timestamp.to_i,
-	#		"uid"=>event.user.id,
-	#		"content"=>event.content,
-	#		"attach"=>attach_to_ary(event),
-	#		"editat"=>nil,
-	#		"delat"=>nil
-	#	}
-	#end
-	
 end
