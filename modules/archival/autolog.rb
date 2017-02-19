@@ -46,7 +46,9 @@ module ArchivalUnit
 		d_msgdefault(event)
 	end
 	def self.d_msgedit(event, data)
-		(data['hist'] ||= []) << msgev_to_hash(event, {'ts'=>Time.now.to_i})
+		new_msg = msgev_to_hash(event, {'ts'=>Time.now.to_i})
+		new_msg.delete('attach') if new_msg['attach'] == data['mo']['attach']
+		(data['hist'] ||= []) << new_msg
 		data
 	end
 	def self.d_msgdelete(event, data)
