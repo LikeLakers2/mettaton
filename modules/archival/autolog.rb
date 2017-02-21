@@ -37,6 +37,7 @@ module ArchivalUnit
 		end
 		
 		nd = send("d_msg#{type}", event, d)
+		return unless nd
 		p nd
 		
 		update_logs(file, js, id, nd)
@@ -46,17 +47,20 @@ module ArchivalUnit
 		d_msgdefault(event)
 	end
 	def self.d_msgedit(event, data)
-		new_msg = msgev_to_hash(event, {'ts'=>Time.now.to_i})
+		return unless data
+		new_msg = msgev_to_hash(event, {'ts'=>event.message.edit_timestamp.to_i})
 		new_msg.delete('attach') if new_msg['attach'] == data['mo']['attach']
 		(data['hist'] ||= []) << new_msg
 		data
 	end
 	def self.d_msgdelete(event, data)
+		return unless data
 		data['delat'] = Time.now.to_i
 		data
 	end
 	
 	def self.update_logs(filename, d_json, msgid, msg)
+		return unless msg
 		d_json ||= []
 		idx = d_json.find_index {|m| m['id'] == msgid } || d_json.length
 		
@@ -89,6 +93,13 @@ module ArchivalUnit
 			'attach'=>attach_to_url(event)
 		}.merge(custom)
 	end
+	#def self.msg_parse(message)
+	#	nmsg = message.content.clone
+	#	message.mentions.each {|u|
+	#		nmsg.gsub!(/<@!?#{u.id}>/, "@#{u.distinct}")
+	#	}
+	#	message.
+	#end
 	def self.attach_to_url(event)
 		event.message.attachments.map {|attach| attach.url}
 	end

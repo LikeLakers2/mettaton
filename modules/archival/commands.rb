@@ -141,11 +141,4 @@ module ArchivalUnit
 		end
 		nil
 	end
-	
-	
-	command(:relogall) do |event|
-		
-	end
-	
-	
 end
