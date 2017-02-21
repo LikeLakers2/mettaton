@@ -60,7 +60,6 @@ module ArchivalUnit
 	end
 	
 	def self.update_logs(filename, d_json, msgid, msg)
-		return unless msg
 		d_json ||= []
 		idx = d_json.find_index {|m| m['id'] == msgid } || d_json.length
 		
