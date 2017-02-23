@@ -38,9 +38,10 @@ module ArchivalUnit
 		
 		nd = send("d_msg#{type}", event, d)
 		return unless nd
-		p nd
+		#p nd
 		
 		update_logs(file, js, id, nd)
+		idstore_update(event.bot)
 	end
 	
 	def self.d_msgcreate(event, _)
