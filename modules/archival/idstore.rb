@@ -2,15 +2,17 @@ module ArchivalUnit
 	def self.idstore_update(bot)
 		# Could implement pstore here, but I have no intention of dealing with Marshal stuff
 		sfile = File.join($config["datadir"], "archivalunit", "fulllogs", "idstore") << ".json"
-		old_store = File.exist?(sfile) ? JSON.parse(File.read(sfile, {encoding: "UTF-8"})) : {}
-		
-		new_store = idstore_hash(bot)
-		
-		combined_store = idstore_merge(old_store, new_store)
+		p old_store = File.exist?(sfile) ? JSON.parse(File.read(sfile, {encoding: "UTF-8"})) : {}
+		p "-"
+		p new_store = idstore_hash(bot)
+		p "-"
+		p combined_store = idstore_merge(old_store, new_store)
 		
 		unless old_store == combined_store
 			File.write(sfile, JSON.generate(combined_store), {:mode => 'w'})
 		end
+	rescue => exc
+		report(exc)
 	end
 	
 	def self.idstore_hash(bot)
@@ -24,10 +26,13 @@ module ArchivalUnit
 			s.roles.each {|r|
 				hr[r.id.to_s] = r.name
 			}
+			s.members.each {|m|
+				hu[m.id.to_s] = m.distinct
+			}
 		}
-		bot.users.each {|id, u|
-			hu[id.to_s] = u.distinct
-		}
+		#bot.users.each {|id, u|
+		#	hu[id.to_s] = u.distinct
+		#}
 		
 		{
 			'servers'=>hs,
@@ -39,7 +44,10 @@ module ArchivalUnit
 	
 	def self.idstore_merge(old, new)
 		old.merge(new){|k,vold,vnew|
-			vold.merge(vnew)
+			vold.merge(vnew){|vk,vvold,vvnew|
+				# Sometimes the members hash can become corrupted and have nil stuff.
+				vvnew || vvold
+			}
 		}
 	end
 end
