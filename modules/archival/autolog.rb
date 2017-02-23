@@ -71,11 +71,7 @@ module ArchivalUnit
 	
 	
 	def self.msg_to_id(event)
-		if event.class == Discordrb::Events::MessageDeleteEvent
-			event.id
-		else
-			event.message.id
-		end
+		event.class == Discordrb::Events::MessageDeleteEvent ? event.id : event.message.id
 	end
 	
 	def self.d_msgdefault(event, custom = {})
@@ -93,13 +89,6 @@ module ArchivalUnit
 			'attach'=>attach_to_url(event)
 		}.merge(custom)
 	end
-	#def self.msg_parse(message)
-	#	nmsg = message.content.clone
-	#	message.mentions.each {|u|
-	#		nmsg.gsub!(/<@!?#{u.id}>/, "@#{u.distinct}")
-	#	}
-	#	message.
-	#end
 	def self.attach_to_url(event)
 		event.message.attachments.map {|attach| attach.url}
 	end
