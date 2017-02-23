@@ -1,5 +1,5 @@
 module Discordrb::Events
-	class Event
+	class EventHandler
 		def call(event)
 			@block.call(event)
 		rescue => exc
