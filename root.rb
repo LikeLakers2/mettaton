@@ -11,21 +11,10 @@ def eval_cmd(event, *code)
 			eval code.join(' ')
 		end
 	rescue => exc
-		e = exc.inspect
-		e << "\n" << exc.backtrace.join("\n")
-		
-		exc_msg = []
-		exc_msg << "```"
-		e.gsub!(/`/, "'")
-		e.gsub!(/\/home\/minecraft\/wikibot/i, "$BOT_HOME")
-		e.gsub!(/\/opt\/rubies\/ruby-2\.3\.1\/lib\/ruby\/gems\/2\.3\.0\/gems/i, "$GEM_HOME")
-		exc_msg << e
-		exc_msg << "```"
-		
-		exc_msg = exc_msg.join("\n")
+		exc_msg = error_report(exc)
 		if exc_msg.length >= 2000
 			#We should send it as a file
-			filename = File.join($config["tempdir"], "exception.log")
+			filename = File.join($config["tempdir"], "eval_exception.log")
 			
 			File.write(filename, exc_msg, {:mode => 'w'})
 			
@@ -67,6 +56,45 @@ def check_admin(event)
 		return true if $admin_roles.include? r.id
 	}
 	return false
+end
+
+def report(exc)
+	exc_msg = error_report(exc)
+	filename = File.join($config["tempdir"], "exception_#{Time.now.to_i}.log")
+	
+	File.write(filename, exc_msg, {:mode => 'w'})
+	if exc_msg.length >= 2000
+		#We should send it as a file
+		f = File.open(filename, "r")
+		msg_info = "Exception occured. (>2000 characters)"
+		
+		$bot.send_file(284389705972449291, f, caption: msg_info)
+	else
+		$bot.send_message(284389705972449291, exc_msg)
+	end
+rescue => exc_exc
+	exc_msg = error_report(exc)
+	filename = File.join($config["tempdir"], "exception_#{Time.now.to_i}-1.log")
+	
+	File.write(filename, exc_msg, {:mode => 'w'})
+	puts "Error occured while reporting error. Exception log is located at ./temp/exception_#{Time.now.to_i}-1.log"
+ensure
+	puts "Error occured. Exception log is located at ./temp/exception_#{Time.now.to_i}.log"
+end
+
+def error_report(exc)
+	e = exc.inspect
+	e << "\n" << exc.backtrace.join("\n")
+	
+	exc_msg = []
+	exc_msg << "```"
+	e.gsub!(/`/, "'")
+	e.gsub!(/\/home\/minecraft\/wikibot/i, "$BOT_HOME")
+	e.gsub!(/\/opt\/rubies\/ruby-2\.3\.1\/lib\/ruby\/gems\/2\.3\.0\/gems/i, "$GEM_HOME")
+	exc_msg << e
+	exc_msg << "```"
+	
+	exc_msg = exc_msg.join("\n")
 end
 
 $bot.ready() do |event|
