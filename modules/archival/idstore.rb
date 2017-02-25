@@ -2,17 +2,15 @@ module ArchivalUnit
 	def self.idstore_update(bot)
 		# Could implement pstore here, but I have no intention of dealing with Marshal stuff
 		sfile = File.join($config["datadir"], "archivalunit", "fulllogs", "idstore") << ".json"
-		p old_store = File.exist?(sfile) ? JSON.parse(File.read(sfile, {encoding: "UTF-8"})) : {}
-		p "-"
-		p new_store = idstore_hash(bot)
-		p "-"
-		p combined_store = idstore_merge(old_store, new_store)
+		old_store = File.exist?(sfile) ? JSON.parse(File.read(sfile, {encoding: "UTF-8"})) : {}
+		#p "-"
+		new_store = idstore_hash(bot)
+		#p "-"
+		combined_store = idstore_merge(old_store, new_store)
 		
 		unless old_store == combined_store
 			File.write(sfile, JSON.generate(combined_store), {:mode => 'w'})
 		end
-	rescue => exc
-		report(exc)
 	end
 	
 	def self.idstore_hash(bot)
@@ -30,9 +28,6 @@ module ArchivalUnit
 				hu[m.id.to_s] = m.distinct
 			}
 		}
-		#bot.users.each {|id, u|
-		#	hu[id.to_s] = u.distinct
-		#}
 		
 		{
 			'servers'=>hs,
