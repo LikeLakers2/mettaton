@@ -91,6 +91,7 @@ def error_report(exc)
 	e.gsub!(/`/, "'")
 	e.gsub!(/\/home\/minecraft\/wikibot/i, "$BOT_HOME")
 	e.gsub!(/\/opt\/rubies\/ruby-2\.3\.1\/lib\/ruby\/gems\/2\.3\.0\/gems/i, "$GEM_HOME")
+	e.gsub!(/\$GEM_HOME\/discordrb-#{Discordrb::VERSION}\/lib\/discordrb/i, "$GEM-DRB")
 	exc_msg << e
 	exc_msg << "```"
 	
