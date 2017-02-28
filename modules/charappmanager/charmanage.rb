@@ -285,9 +285,7 @@ module CharAppManager
 			else
 				if field.downcase == "owner"
 					field = "ownerid"
-					unless event.message.mentions.zero?
-						searchtext = event.message.mentions[0].id.to_s
-					end
+					searchtext = event.message.mentions[0].id.to_s
 				end
 				if op == "REGEX" || op == "!REGEX"
 					# ^\s*\/.*\/\w*\s*$
