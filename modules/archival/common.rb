@@ -12,9 +12,10 @@ module ArchivalUnit
 	end
 	
 	
-	def self.archive_yield(event, count)
+	def self.archive_yield(event, count, channel_override = nil)
 		return if count <= 0
-		event.channel.start_typing
+		c = channel_override || event.channel
+		c.start_typing unless channel_override
 		
 		wait_time = get_wait_time(count)
 		q_grab_to_history = Queue.new
@@ -24,7 +25,7 @@ module ArchivalUnit
 			before_id = nil
 			got_count = 0
 			while true
-				history = get_history(count, got_count, event.channel, before_id)
+				history = get_history(count, got_count, c, before_id)
 				q_grab_to_history << history
 				if history.length < 100
 					#We've reached the beginning of the channel, celebrate

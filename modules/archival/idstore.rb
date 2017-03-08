@@ -24,9 +24,12 @@ module ArchivalUnit
 			s.roles.each {|r|
 				hr[r.id.to_s] = r.name
 			}
-			s.members.each {|m|
-				hu[m.id.to_s] = m.distinct
-			}
+			#s.members.each {|m|
+			#	hu[m.id.to_s] = m.distinct
+			#}
+		}
+		bot.users.each_pair {|id,u|
+			hu[id.to_s] = u.distinct
 		}
 		
 		{
