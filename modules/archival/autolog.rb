@@ -29,7 +29,7 @@ module ArchivalUnit
 		date = (override_time || Time.now).strftime '%Y-%m-%d'
 		file = log_fn("#{event.channel.id}_#{date}")
 		if File.exist?(file)
-			js = JSON.parse(File.read(file, {}))
+			js = JSON.parse(File.read(file, { encoding: "UTF-8" }))
 			d = js.find{|m| m['id'] == id}
 		else
 			js = nil
@@ -43,41 +43,10 @@ module ArchivalUnit
 		update_logs(file, js, id, nd)
 		idstore_update(event.bot) if update_idstore
 	end
-	def self.find_fn_by_id(id, chanid)
-		date = id_to_time(id).strftime '%Y-%m-%d'
-		
-		f = File.join($config["datadir"], "archivalunit", "fulllogs", "#{chanid}_#{date}") << ".json"
-		if File.exist?(f)
-			js = JSON.parse(File.read(f, { encoding: "UTF-8" }))
-			#{
-			#  "1":[1234, 1236],
-			#  "2":[1237, 1239]
-			#}
-			js.each_pair {|k,v|
-				return k if (v[0]..v[1]).include? id
-			}
-		end
-	end
 	def self.log_fn(name)
 		base = File.join($config["datadir"], "archivalunit", "fulllogs")
 		ext = ".json"
 		fn = File.join(base, name) << "-0#{ext}"
-		return fn unless (File.size?(fn) || 0) > (1024*1024*25)
-		return fn
-		got_name = false
-		fn_id = 1
-		until got_name
-			fn = File.join(base, name) << "-#{fn_id}#{ext}"
-			if (File.size?(fn) || 0) > (1024*1024*25)
-				fn_id += 1
-				next
-			else
-				got_name = true
-			end
-		end
-		
-		index_fn = File.join(base, name) << ext
-		[index_fn, fn]
 		fn
 	end
 	
