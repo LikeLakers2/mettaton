@@ -18,18 +18,19 @@ module ArchivalUnit
 		c.start_typing unless channel_override
 		
 		wait_time = get_wait_time(count)
-		q_grab_to_history = Queue.new
+		#q_grab_to_history = Queue.new
 		
-		t = {}
-		t[:grab_history] = Thread.new {
+		#t = {}
+		#t[:grab_history] = Thread.new {
 			before_id = nil
 			got_count = 0
 			while true
 				history = get_history(count, got_count, c, before_id)
-				q_grab_to_history << history
+				#q_grab_to_history << history
+				yield history
 				if history.length < 100
 					#We've reached the beginning of the channel, celebrate
-					q_grab_to_history.close
+					#q_grab_to_history.close
 					break
 				end
 				before_id = history.last.id
@@ -37,16 +38,16 @@ module ArchivalUnit
 				
 				sleep wait_time
 			end
-		}
+		#}
 		
-		t[:history_yield] = Thread.new {
-			while m_ary = q_grab_to_history.pop
-				yield m_ary
-			end
-		}
+		#t[:history_yield] = Thread.new {
+		#	while m_ary = q_grab_to_history.pop
+		#		yield m_ary
+		#	end
+		#}
 		
 		#t.each_pair {|n,t| p t.value}
-		t.each_value {|t| t.join}
+		#t.each_value {|t| t.join}
 	end
 	
 	def self.get_history(count, got_count, channel, before_id)

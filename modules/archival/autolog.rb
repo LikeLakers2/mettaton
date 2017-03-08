@@ -21,13 +21,13 @@ module ArchivalUnit
 		log_message(event, :delete)
 	end
 	
-	def self.log_message(event, type, override_time = nil)
+	def self.log_message(event, type, override_time = nil, update_idstore = true)
 		return unless @channels.include? event.channel.id
 		
 		id = msg_to_id(event)
 		
 		date = (override_time || Time.now).strftime '%Y-%m-%d'
-		p file = log_fn("#{event.channel.id}_#{date}")
+		file = log_fn("#{event.channel.id}_#{date}")
 		if File.exist?(file)
 			js = JSON.parse(File.read(file, {}))
 			d = js.find{|m| m['id'] == id}
@@ -41,7 +41,7 @@ module ArchivalUnit
 		#p nd
 		
 		update_logs(file, js, id, nd)
-		idstore_update(event.bot)
+		idstore_update(event.bot) if update_idstore
 	end
 	def self.find_fn_by_id(id, chanid)
 		date = id_to_time(id).strftime '%Y-%m-%d'

@@ -146,11 +146,16 @@ module ArchivalUnit
 		@channels.each {|c|
 			chan = event.bot.channel(c)
 			
+			# Do this beforehand so we don't do so many resolve requests
+			chan.server.members
+			
 			archive_yield(nil, 99999999999999, chan) {|m_ary|
 				m_ary.each {|m|
-					log_message(Discordrb::Events::MessageEvent.new(m, $bot), :create, m.timestamp)
+					log_message(Discordrb::Events::MessageEvent.new(m, $bot), :create, m.timestamp, false)
 				}
 			}
+			
+			idstore_update(event.bot)
 		}
 		nil
 	end
