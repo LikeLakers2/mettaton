@@ -9,7 +9,6 @@ module ArchivalUnit
 		if !(check_admin(event))
 			break if event.channel.id == 120330239996854274  #Newhome, check for admin
 		end
-		break unless event.user.id == $config["ownerid"]
 		
 		msgcount = msgcount.to_i
 		if msgcount <= 0
@@ -142,5 +141,17 @@ module ArchivalUnit
 		nil
 	end
 	
-	
+	command(:archsync) do |event|
+		break unless event.user.id == $config["ownerid"]
+		@channels.each {|c|
+			chan = event.bot.channel(c)
+			
+			archive_yield(nil, 99999999999999, chan) {|m_ary|
+				m_ary.each {|m|
+					log_message(Discordrb::Events::MessageEvent.new(m, $bot), :create, m.timestamp)
+				}
+			}
+		}
+		nil
+	end
 end

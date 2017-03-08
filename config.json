@@ -19,7 +19,7 @@
       "<@!260783424908951553>"
     ],
     "fancy_log": false,
-    "ignore_bots": true,
+    "ignore_bots": false,
     "webhook_commands": false
   },
   "modconfig": {
