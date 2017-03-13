@@ -442,8 +442,9 @@ module CharAppManager
 		pos = 0
 		c = event.content
 		
-		bpos = c.index(params[1])
-		pos = bpos+params[1].length
+		# Quote stuff here is to deal with an issue regarding quotes in field names.
+		bpos = c.index(params[1].gsub(/"/, '\\"'))
+		pos = bpos + params[1].length + params[1].count('"')
 		
 		pos -= 1 unless (c[bpos-1] == '"' && c[pos] == '"')
 		pos += 2

@@ -1,12 +1,3 @@
-
-###                                                                    ###
-#  Configuration loader for the bot. Loads the config into three vars.   #
-#     $config   - Contains stuff such as ownerid, and what dirs to load  #
-#                 other stuff from.                                      #
-#  $libconfig   - Configuration for the bot instance.                    #
-#  $modconfig   - Configuration for modules.                             #
-###                                                                    ###
-
 require 'json'
 
 def ary_str2int(array)
@@ -14,14 +5,6 @@ def ary_str2int(array)
 end
 
 def global_reload_config
-	$config, $libconfig, $modconfig, $ignored_users, $admin_roles, $credentials = [{},{},{},[],[],{}]
-	#$config ||= {}
-	#$libconfig ||= {}
-	#$modconfig ||= {}
-	#$ignored_users ||= []
-	#$admin_roles ||= []
-	#$credentials ||= {}
-	
 	puts "Loading config.json..."
 	
 	f = File.open("config.json").read

@@ -8,7 +8,7 @@ module MiscMod
 		# [["DICE", "d", "SIDES"], [nil, nil, nil]]
 		
 		dice = s[0].nil? ? 1 : s[0].to_i
-		if dice == 0 #0dX
+		if dice.zero? #0dX
 			event.respond "The dice rolls are somewhere else."
 			break
 		elsif dice > 100
@@ -17,7 +17,7 @@ module MiscMod
 		end
 		
 		sides = s[2].nil? ? 20 : s[2].to_i
-		if sides == 0 #Xd0
+		if sides.zero? #Xd0
 			event.respond "A sideless die is a non-existant die, I always say."
 			break
 		elsif sides == 1 #Xd1
