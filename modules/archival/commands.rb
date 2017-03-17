@@ -159,4 +159,12 @@ module ArchivalUnit
 		}
 		nil
 	end
+	
+	command(:archupdate) do |event, channel_id, message_id|
+		break unless event.user.id == $config["ownerid"]
+		channel_id = channel_id.to_i
+		message_id = message_id.to_i
+		m = $bot.channel(channel_id).load_message(message_id)
+		log_message(Discordrb::Events::MessageEvent.new(m, $bot), :create, m.timestamp, false)
+	end
 end
