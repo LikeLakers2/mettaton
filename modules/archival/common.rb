@@ -2,6 +2,8 @@ module ArchivalUnit
 	extend Discordrb::Commands::CommandContainer
 	extend Discordrb::EventContainer
 	
+	attr_accessor :archmutex
+	
 	
 	#####################
 	#######EVENTS########
@@ -9,6 +11,7 @@ module ArchivalUnit
 	
 	ready() do |event|
 		reload_config
+		@archmutex = Mutex.new
 	end
 	
 	

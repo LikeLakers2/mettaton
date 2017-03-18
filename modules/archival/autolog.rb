@@ -28,13 +28,15 @@ module ArchivalUnit
 		
 		date = (override_time || Time.now).strftime '%Y-%m-%d'
 		file = log_fn("#{event.channel.id}_#{date}")
-		if File.exist?(file)
-			js = JSON.parse(File.read(file, { encoding: "UTF-8" }))
-			d = js.find{|m| m['id'] == id}
-		else
-			js = nil
-			d = nil
-		end
+		@archmutex.synchronize {
+			if File.exist?(file)
+				js = JSON.parse(File.read(file, { encoding: "UTF-8" }))
+				d = js.find{|m| m['id'] == id}
+			else
+				js = nil
+				d = nil
+			end
+		}
 		
 		nd = send("d_msg#{type}", event, d)
 		return unless nd
@@ -79,12 +81,14 @@ module ArchivalUnit
 	end
 	
 	def self.update_logs(filename, d_json, msgid, msg)
-		d_json ||= []
-		idx = d_json.find_index {|m| m['id'] == msgid } || d_json.length
-		
-		d_json[idx] = msg
-		
-		File.write(filename, JSON.generate(d_json), {:mode => 'w'})
+		@archmutex.synchronize {
+			d_json ||= []
+			idx = d_json.find_index {|m| m['id'] == msgid } || d_json.length
+			
+			d_json[idx] = msg
+			
+			File.write(filename, JSON.generate(d_json), {:mode => 'w'})
+		}
 	end
 	
 	
