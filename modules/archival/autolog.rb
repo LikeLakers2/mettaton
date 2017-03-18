@@ -36,13 +36,12 @@ module ArchivalUnit
 				js = nil
 				d = nil
 			end
+			nd = send("d_msg#{type}", event, d)
+			return unless nd
+			#p nd
+			
+			update_logs(file, js, id, nd)
 		}
-		
-		nd = send("d_msg#{type}", event, d)
-		return unless nd
-		#p nd
-		
-		update_logs(file, js, id, nd)
 		idstore_update(event.bot) if update_idstore
 	rescue => exc
 		report(exc)
@@ -81,14 +80,12 @@ module ArchivalUnit
 	end
 	
 	def self.update_logs(filename, d_json, msgid, msg)
-		@archmutex.synchronize {
-			d_json ||= []
-			idx = d_json.find_index {|m| m['id'] == msgid } || d_json.length
-			
-			d_json[idx] = msg
-			
-			File.write(filename, JSON.generate(d_json), {:mode => 'w'})
-		}
+		d_json ||= []
+		idx = d_json.find_index {|m| m['id'] == msgid } || d_json.length
+		
+		d_json[idx] = msg
+		
+		File.write(filename, JSON.generate(d_json), {:mode => 'w'})
 	end
 	
 	
