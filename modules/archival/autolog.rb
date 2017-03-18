@@ -42,6 +42,16 @@ module ArchivalUnit
 		
 		update_logs(file, js, id, nd)
 		idstore_update(event.bot) if update_idstore
+	rescue => exc
+		report(exc)
+		
+		error_msg = []
+		error_msg << "Error while logging message."
+		error_msg << "Server ID: #{(event.server.id||0).resolve_id || 'Unknown'}"
+		error_msg << "Channel ID: #{(event.channel||0).resolve_id || 'Unknown'}"
+		error_msg << "Message ID: #{(event.message||0).resolve_id || 'Unknown'}"
+		error_msg = error_msg.join("\n")
+		$bot.send_message(284389705972449291, error_msg)
 	end
 	def self.log_fn(name)
 		base = File.join($config["datadir"], "archivalunit", "fulllogs")
