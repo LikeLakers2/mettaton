@@ -367,12 +367,25 @@ module CharAppManager
 		}
 	end
 	
+	def self.default_arb(type)
+		case type
+		when :@fields
+			default_fields
+		when :@properties
+			default_props
+		end
+	end
+	
 	def self.default_fields_merge(hash)
 		default_merge(hash, default_fields)
 	end
 	
 	def self.default_props_merge(hash)
 		default_merge(hash, default_props)
+	end
+	
+	def self.default_arb_merge(type, hash)
+		default_merge(hash, default_arb(type))
 	end
 	
 	def self.default_merge(hash, default_hash)

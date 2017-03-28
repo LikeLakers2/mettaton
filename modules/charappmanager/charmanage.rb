@@ -5,6 +5,7 @@ module CharAppManager
 	
 	command([:charmanage, :cm]) do |event, action = nil, *params|
 		break unless check_event(event)
+		event.respond "This command is deprecated! Please use one of the dedicated commands, listed here: <https://github.com/LikeLakers2/mettaton/wiki#character-manager>"
 		if event.channel.private?
 			event.respond "You should execute this in a server, you know."
 		elsif action.nil?
@@ -30,8 +31,26 @@ module CharAppManager
 		nil
 	end
 	
+	#    view => PageWithProperties#view
+	#     set => PageWithProperties#field_set!
+	# setprop => PageWithProperties#prop_set!
+	#    list => Wiki#list
+	#  search => Wiki#search
+	#  delete => Wiki[n] = nil              #TODO
 	command([:view, :set, :setprop, :list, :search, :delete]) do |event, *params|
-		event.bot.execute_command(:charmanage, event, [event.command.name, *params])
+		break unless check_event(event)
+		act = "cm_#{event.command.name}".to_sym
+		msg = self.send(act, event, params)
+		
+		case m.class
+		when String
+			event.respond m unless m.empty?
+		when Array
+			msg.each {|m|
+				event.respond m unless m.empty?
+			}
+		end
+		nil
 	end
 	
 	def self.cm_view(event, params = nil)
@@ -39,37 +58,28 @@ module CharAppManager
 		charid = get_charid(event, servid, params[0])
 		return if !charid
 		
-		msg = ""
 		#-------------#
-		propmsg = []
-		fieldmsg = []
 		c = @characters[servid][charid]
-		
-		#####PROPERTIES#####
-		propmsg << "Info for Character ##{charid}:"
-		c.properties.each_pair {|k,v|
-			case k
-			when "charid" then next
-			when "ownerid"
+		intromsg = "Info for Character ##{charid}:"
+		propmsg = c.view_props {|p,v|
+			if p == "ownerid"
 				dist = get_distinct(event, v)
 				if dist.nil?
-					propmsg << "`[Property] Owner ID`: #{v} (User has left this server)"
+					"`[Property] Owner ID`: #{v} (User has left this server)"
 				else
-					propmsg << "`[Property] Owner`: **#{dist}**"
+					"`[Property] Owner`: **#{dist}**"
 				end
 			else
-				propmsg << "`[Property] #{k}`: #{v}"
+				"`[Property] #{p}`: #{v}"
 			end
 		}
-		
-		#####CHAR#FIELDS#####
-		c.fields.each {|k,v|
-			fieldmsg << "`#{k}`: #{v}"
+		fieldmsg = c.view_fields {|f,v|
+			"`#{f}`: #{v}"
 		}
 		
 		cl = Discordrb::CHARACTER_LIMIT
 		pl = 0; fl = 0
-		p_j = propmsg.join("\n");
+		p_j = intromsg + propmsg.join("\n")
 		f_j = fieldmsg.join("\n")
 		pl = p_j.length; fl = f_j.length
 		if pl+fl+1 > cl   #If, combined with a line break, it would be over the character limit
@@ -89,122 +99,73 @@ module CharAppManager
 				event.send_file(f, caption: msg_info)
 			else
 				#Send it as two separate messages
-				event.respond p_j
-				event.respond f_j
+				[p_j,f_j]
 			end
 		else
-			msg << "#{p_j}\n#{f_j}"
+			"#{p_j}\n#{f_j}"
 		end
-		#-------------#
-		
-		event.respond msg unless msg.empty?
 	end
 	
 	def self.cm_set(event, params = nil)
-		userid = event.user.id
-		servid = event.server.id
-		charid = get_charid(event, servid, params[0])
-		return if !charid
-		
-		msg = ""
-		if is_owner?(servid, charid, userid) or check_admin(event)
-			field = params.empty? ? nil : params[1]
-			field_text = params.empty? ? nil : (params[2].nil? ? nil : get_text_param(event, params))
-			#key = @characters[servid][charid].field_get(field)
-			
-			if field.nil?
-				msg = "Please specify a field to edit!"
-			elsif field_text.nil?
-				key = @characters[servid][charid].field_get(field)
-				msg << "What do you want to do with `#{field}`?\n"
-				if key.nil?
-					msg << "If you want to create that field, just put some text after the field name!"
-				else
-					msg << "If you want to edit that field, just put some text after the field name!\n"
-					msg << "Alternatively, if you want to delete that field, just type `delete` after the field name."
-				end
-			elsif field_text.downcase == "delete"
-				key = @characters[servid][charid].field_get(field)
-				if key.nil?
-					msg = "That field does not exist."
-				elsif default_fields.keys.include? key
-					@characters[servid][charid].fields[key] = ""
-					msg = "Field `#{key}` for that character has been wiped."
-				else
-					@characters[servid][charid].fields.delete key
-					msg = "Field `#{key}` for that character has been deleted."
-				end
-			else
-				key = @characters[servid][charid].field_get(field)
-				if key.nil?
-					@characters[servid][charid].fields[field] = url_block(field_text)
-					msg = "Field `#{field}` for that character has been created."
-				else
-					@characters[servid][charid].fields[key] = url_block(field_text)
-					msg = "Field `#{key}` for that character has been changed."
-				end
-			end
-			save_char(servid, charid)
-		else
-			msg = "You do not have permission to do that!"
-		end
-		
-		event.respond msg unless msg.empty?
+		set_internal(event, params, :@fields, "Field")
 	end
 	
 	def self.cm_setprop(event, params = nil)
+		set_internal(event, params, :@properties, "Property", false)
+	end
+	
+	def self.set_internal(event, params, hash, t, allow_nonadmin = true)
 		userid = event.user.id
 		servid = event.server.id
 		charid = get_charid(event, servid, params[0])
 		return if !charid
 		
-		msg = ""
-		if check_admin(event)
-			prop = params.empty? ? nil : params[1]
-			prop_text = params.empty? ? nil : (params[2].nil? ? nil : get_text_param(event, params))
-			#key = @characters[servid][charid].prop_get(prop)
+		msg = []
+		c = @characters[servid][charid]
+		if (c.is_owner?(event.user) and allow_nonadmin) or check_admin(event)
+			td = t.downcase
 			
-			if prop.nil?
-				msg = "Please specify a property to edit!"
-			elsif prop == "charid"
-				msg = "You are not allowed to set the character ID."
-			elsif prop_text.nil?
-				key = @characters[servid][charid].prop_get(prop)
-				msg << "What do you want to do with `#{prop}`?\n"
+			aryk = params.empty? ? nil : params[1]
+			aryk_text = params.empty? ? nil : (params[2].nil? ? nil : get_text_param(event, params))
+			
+			if aryk.nil?
+				msg = "Please specify a #{td} to edit!"
+			elsif aryk_text.nil?
+				key = c.arb_get(hash, aryk)
+				msg << "What do you want to do with `#{aryk}`?"
 				if key.nil?
-					msg << "If you want to create that prop, just put some text after the prop name!"
+					msg << "If you want to create that #{td}, just put some text after the #{td} name!"
 				else
-					msg << "If you want to edit that prop, just put some text after the prop name!\n"
-					msg << "Alternatively, if you want to delete that prop, just type `delete` after the prop name."
+					msg << "If you want to edit that #{td}, just put some text after the #{td} name!"
+					msg << "Alternatively, if you want to delete that #{td}, just type `delete` after the #{td} name."
 				end
-			elsif prop_text.downcase == "delete"
-				key = @characters[servid][charid].prop_get(prop)
+			elsif aryk_text.downcase == 'delete'
+				key = c.arb_get(hash, aryk)
 				if key.nil?
-					msg = "That property does not exist."
-				elsif default_props.keys.include? key
-					@characters[servid][charid].properties[key] = ""
-					msg = "Property `#{key}` for that character has been wiped."
+					msg = "That #{td} does not exist."
+				elsif default_arb(hash).keys.include? key
+					c.arb_set!(hash, key, '')
+					msg = "#{t} `#{key}` for that character has been wiped."
 				else
-					@characters[servid][charid].properties.delete key
-					msg = "Property `#{key}` for that character has been deleted."
+					c.arb_delete!(hash, key)
+					msg = "#{t} `#{key}` for that character has been deleted."
 				end
 			else
-				key = @characters[servid][charid].prop_get(prop)
+				key = c.arb_get(hash, aryk)
 				if key.nil?
-					@characters[servid][charid].properties[prop] = prop_text
-					msg = "Property `#{prop}` for that character has been created."
+					c.arb_set!(hash, aryk, aryk_text)
+					msg = "#{t} `#{prop}` for that character has been created."
 				else
-					prop_text = prop_text.to_i if key == "ownerid"
-					@characters[servid][charid].properties[key] = prop_text
-					msg = "Property `#{key}` for that character has been changed."
+					c.arb_set!(hash, key, aryk_text)
+					msg = "#{t} `#{key}` for that character has been changed."
 				end
 			end
 			save_char(servid, charid)
 		else
-			msg = "You are not allowed to set properties on characters."
+			return "You do not have permission to do that!"
 		end
 		
-		event.respond msg unless msg.empty?
+		msg
 	end
 	
 	def self.cm_list(event, params = nil)
