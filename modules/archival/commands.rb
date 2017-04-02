@@ -167,4 +167,8 @@ module ArchivalUnit
 		m = $bot.channel(channel_id).load_message(message_id)
 		log_message(Discordrb::Events::MessageEvent.new(m, $bot), :create, m.timestamp, false)
 	end
+	
+	command(:aeval) do |event, *code|
+		eval_cmd(event, code)
+	end
 end
