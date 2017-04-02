@@ -284,8 +284,17 @@ module CharAppManager
 				msg = "Please specify a valid search operator!"
 			else
 				if field.downcase == "owner"
-					field = "ownerid"
-					searchtext = event.message.mentions[0].id.to_s
+					if event.message.mentions.empty?
+						m = []
+						m << "Searching by `owner` requires a mention!"
+						m << "If you want to search by the owner's ID, try using `ownerid` instead of `owner`."
+						
+						event.respond m.join("\n")
+						return
+					else
+						field = "ownerid"
+						searchtext = event.message.mentions[0].id.to_s
+					end
 				end
 				if op == "REGEX" || op == "!REGEX"
 					# ^\s*\/.*\/\w*\s*$
