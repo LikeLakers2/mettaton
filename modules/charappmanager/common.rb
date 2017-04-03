@@ -23,6 +23,9 @@ module CharAppManager
 	server_create() do |event|
 		#@characters[event.server.id] ||= Wiki.new
 		@characters[event.server.id] ||= []
+		
+		servdir = File.join($config["datadir"], "charappmanager", "characters", event.server.id.to_s)
+		Dir.mkdir(servdir) unless Dir.exist?(servdir)
 	end
 	
 	command(:ceval) do |event, *code|
